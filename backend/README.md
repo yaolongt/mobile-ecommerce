@@ -28,7 +28,7 @@ POSTGRES_HOST=""
 > POSTGRES_HOST="db"
 > ```
 
-### 🚀 Run the Servce
+### 🚀 Run the service
 
 ```bash
 # Clone the repository
@@ -38,5 +38,5 @@ git clone https://github.com/yaolongt/thales-assignment.git
 cd backend
 
 # Run the service
-docker compose --env-file .env up
+make run
 ```
