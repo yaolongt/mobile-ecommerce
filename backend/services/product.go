@@ -46,6 +46,15 @@ func (p *ProductService) UpdateProduct(product *models.Product) error {
 	return nil
 }
 
+func (p *ProductService) DeleteProduct(id int) error {
+	err := p.db.Delete(id)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (p *ProductService) UploadProductImages(files []*multipart.FileHeader) ([]string, error) {
 	var urls []string
 

@@ -1,0 +1,11 @@
+meta {
+  name: delete_product
+  type: http
+  seq: 6
+}
+
+delete {
+  url: {{docker}}/api/v1/product/6
+  body: none
+  auth: inherit
+}

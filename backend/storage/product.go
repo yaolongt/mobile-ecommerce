@@ -10,6 +10,8 @@ type ProductInterface interface {
 	List(limit, cursor int) ([]*models.Product, int, error)
 	GetByID(id int) (*models.Product, error)
 	Update(product *models.Product) error
+	UpdateInventory(id int, inventory int) error
+	Delete(id int) error
 }
 
 type ProductDB struct {
@@ -69,6 +71,19 @@ func (p *ProductDB) Update(product *models.Product) error {
 
 func (p *ProductDB) UpdateInventory(id int, inventory int) error {
 	result := p.write.Model(&models.Product{}).Where("id = ?", id).Update("inventory", inventory)
+	if result.Error != nil {
+		return result.Error
+	}
+
+	if result.RowsAffected == 0 {
+		return gorm.ErrRecordNotFound
+	}
+
+	return nil
+}
+
+func (p *ProductDB) Delete(id int) error {
+	result := p.write.Model(&models.Product{}).Where("id = ?", id).Update("is_deleted", true)
 	if result.Error != nil {
 		return result.Error
 	}

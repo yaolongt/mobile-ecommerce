@@ -26,6 +26,7 @@ func InitRoutes() {
 	product.GET("", productController.GetAllProducts)
 	product.GET("/:id", productController.GetProductByID)
 	product.PUT("", productController.UpdateProduct)
+	product.DELETE("/:id", productController.DeleteProduct)
 	product.POST("/upload", productController.UploadProductImages)
 
 	router.Run(":" + configs.PORT)

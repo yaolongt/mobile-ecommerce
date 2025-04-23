@@ -91,6 +91,31 @@ func (p *ProductController) UpdateProduct(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "Product updated successfully"})
 }
 
+func (p *ProductController) DeleteProduct(c *gin.Context) {
+	id := c.Param("id")
+	if id == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Product ID is required"})
+		return
+	}
+
+	productID, err := strconv.Atoi(id)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid product ID"})
+		return
+	}
+
+	if err := p.service.DeleteProduct(productID); err != nil {
+		if err == gorm.ErrRecordNotFound {
+			c.JSON(http.StatusNotFound, gin.H{"error": "Product not found"})
+			return
+		}
+		c.JSON(http.StatusInternalServerError, gin.H{"error": fmt.Sprintf("Failed to delete product. %v", err)})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "Product deleted successfully"})
+}
+
 func (p *ProductController) UploadProductImages(c *gin.Context) {
 	if err := c.Request.ParseMultipartForm(10 << 20); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Unable to parse form"})
