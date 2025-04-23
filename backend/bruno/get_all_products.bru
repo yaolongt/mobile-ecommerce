@@ -1,0 +1,15 @@
+meta {
+  name: get_all_products
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{docker}}/api/v1/product?cursor=1
+  body: none
+  auth: inherit
+}
+
+params:query {
+  cursor: 1
+}

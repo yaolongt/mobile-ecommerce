@@ -10,19 +10,28 @@ import (
 )
 
 type Storage struct {
-	read  *gorm.DB
-	write *gorm.DB
+	read    *gorm.DB
+	write   *gorm.DB
+	S3      S3Interface
+	Product ProductInterface
 }
 
 var storageInstance *Storage
 var once sync.Once
 
-func GetStorageInstance() *Storage {
+func InitStorageInstange() {
 	once.Do(func() {
 		storageInstance = &Storage{}
 		storageInstance.InitDB()
+		storageInstance.S3 = NewMinio()
+		storageInstance.Product = NewProductDB(storageInstance.read, storageInstance.write)
 	})
+}
 
+func GetStorageInstance() *Storage {
+	if storageInstance == nil {
+		InitStorageInstange()
+	}
 	return storageInstance
 }
 

@@ -3,13 +3,14 @@ package main
 import (
 	"backend/configs"
 	routers "backend/routes"
+	"backend/storage"
 )
 
 func main() {
 	configs.InitEnv()
 
-	// dbInstance := configs.GetStorageInstance()
-	// defer dbInstance.CloseDB()
+	dbInstance := storage.GetStorageInstance()
+	defer dbInstance.CloseDB()
 
 	routers.InitRoutes()
 }

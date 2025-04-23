@@ -7,3 +7,9 @@ run:
 stop:
 	echo "Stopping"
 	docker compose down
+
+# clean up
+clean:
+	echo "Cleaning up"
+	docker compose down -v
+	rm ./main

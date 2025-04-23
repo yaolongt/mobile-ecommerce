@@ -42,26 +42,26 @@ func InitEnv() {
 }
 
 func setDBConnectionString() {
-	POSTGRESQL_HOST := getEnv("POSTGRESQL_HOST", "localhost")
-	POSTGRESQL_PORT := getEnv("POSTGRESQL_PORT", "5432")
-	POSTGRESQL_USER := getEnv("POSTGRESQL_USER", "postgres")
-	POSTGRESQL_PASSWORD := getEnv("POSTGRESQL_PASSWORD", "postgres")
-	POSTGRESQL_DB := getEnv("POSTGRESQL_DB", "backend")
+	POSTGRES_HOST := getEnv("POSTGRES_HOST", "localhost")
+	POSTGRES_PORT := getEnv("POSTGRES_PORT", "5432")
+	POSTGRES_USER := getEnv("POSTGRES_USER", "postgres")
+	POSTGRES_PASSWORD := getEnv("POSTGRES_PASSWORD", "postgres")
+	POSTGRES_DB := getEnv("POSTGRES_DB", "backend")
 
 	POSTGRESQL_CONN_STRING_MASTER = fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
-		POSTGRESQL_HOST,
-		POSTGRESQL_PORT,
-		POSTGRESQL_USER,
-		POSTGRESQL_PASSWORD,
-		POSTGRESQL_DB,
+		POSTGRES_HOST,
+		POSTGRES_PORT,
+		POSTGRES_USER,
+		POSTGRES_PASSWORD,
+		POSTGRES_DB,
 	)
 
 	POSTGRESQL_CONN_STRING_SLAVE = fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
-		POSTGRESQL_HOST,
-		POSTGRESQL_PORT,
-		POSTGRESQL_USER,
-		POSTGRESQL_PASSWORD,
-		POSTGRESQL_DB,
+		POSTGRES_HOST,
+		POSTGRES_PORT,
+		POSTGRES_USER,
+		POSTGRES_PASSWORD,
+		POSTGRES_DB,
 	)
 }
 

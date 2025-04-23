@@ -1,0 +1,15 @@
+meta {
+  name: upload_images
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{docker}}/api/v1/product/upload
+  body: multipartForm
+  auth: inherit
+}
+
+body:multipart-form {
+  images: @file()
+}

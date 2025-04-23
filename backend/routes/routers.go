@@ -3,12 +3,14 @@ package routers
 import (
 	"backend/configs"
 	"backend/controllers"
+	"backend/services"
 
 	"github.com/gin-gonic/gin"
 )
 
 func InitRoutes() {
 	healthController := controllers.NewHealthController()
+	productController := controllers.NewProductController(services.NewProductService())
 
 	router := gin.Default()
 
@@ -19,6 +21,10 @@ func InitRoutes() {
 
 	health := v1.Group("/health")
 	health.GET("", healthController.HealthCheck)
+
+	product := v1.Group("/product")
+	product.GET("", productController.GetAllProducts)
+	product.POST("/upload", productController.UploadProductImages)
 
 	router.Run(":" + configs.PORT)
 }

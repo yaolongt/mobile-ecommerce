@@ -23,7 +23,7 @@ type Minio struct {
 	bucket string
 }
 
-func NewMinio() *Minio {
+func NewMinio() S3Interface {
 	minioClient, err := minio.New(configs.S3_ENDPOINT, &minio.Options{
 		Creds: credentials.NewStaticV4(configs.S3_ACCESS_KEY, configs.S3_SECRET_KEY, ""),
 	})
@@ -105,12 +105,13 @@ func (m *Minio) Put(filename string, file *bytes.Buffer) (string, error) {
 	ctx := context.Background()
 	defer ctx.Done()
 
-	fileType := strings.Split(filename, ".")[1]
+	filenameSplit := strings.Split(filename, ".")
+	fileType := filenameSplit[len(filenameSplit)-1] // Get the last part of the filename
 	if fileType == "" {
 		return "", fmt.Errorf("File type is not specified.")
 	}
 	if fileType != "jpeg" && fileType != "jpg" && fileType != "png" {
-		return "", fmt.Errorf("File type %v is not allowed.", fileType)
+		return "", fmt.Errorf("File type %s is not allowed. Filename: %s", fileType, filename)
 	}
 
 	if file.Len() > 10*2<<20 { // 10MB
@@ -129,5 +130,5 @@ func (m *Minio) Put(filename string, file *bytes.Buffer) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	return fmt.Sprintf("http://%s/%s/%s", configs.S3_ENDPOINT, m.bucket, uniqueFilename), nil
+	return fmt.Sprintf("http://localhost:9000/%s/%s", m.bucket, uniqueFilename), nil
 }
