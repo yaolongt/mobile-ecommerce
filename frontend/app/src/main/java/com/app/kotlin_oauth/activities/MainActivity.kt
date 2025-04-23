@@ -1,8 +1,11 @@
 package com.app.kotlin_oauth.activities
 
-import android.annotation.SuppressLint
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -10,21 +13,30 @@ import com.app.kotlin_oauth.pages.HomePage
 
 class MainActivity : BaseActivity() {
     @Composable
-    @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter", "StateFlowValueCalledInComposition")
-    override fun ActivityContent() {
+    override fun ActivityContent(modifier: Modifier) {
         val navController = rememberNavController()
 
-        NavHost(
-            navController = navController,
-            startDestination = "home",
+        Column(
+            modifier = modifier,
         ) {
-            composable("home") {
-                HomePage()
-            }
-            composable("user") {
-                // You can create a dummy UserPage() if needed
-                Text("User Page") // Replace with actual screen
+            NavHost(
+                navController = navController,
+                startDestination = "home",
+            ) {
+                composable("home") {
+                    HomePage()
+                }
+                composable("user") {
+                    // You can create a dummy UserPage() if needed
+                    Text("User Page") // Replace with actual screen
+                }
             }
         }
+    }
+
+    @Preview
+    @Composable
+    private fun PreviewMainActivity() {
+        HomePage()
     }
 }

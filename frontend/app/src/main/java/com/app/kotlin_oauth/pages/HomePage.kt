@@ -1,6 +1,5 @@
 package com.app.kotlin_oauth.pages
 
-import android.content.Context
 import android.content.Intent
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
