@@ -1,12 +1,14 @@
 package controllers
 
 import (
+	"backend/models"
 	"backend/services"
 	"fmt"
 	"net/http"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
+	"gorm.io/gorm"
 )
 
 type ProductController struct {
@@ -20,7 +22,7 @@ func NewProductController(service *services.ProductService) *ProductController {
 }
 
 func (p *ProductController) GetAllProducts(c *gin.Context) {
-	cursorQuery := c.Query("cursor")
+	cursorQuery := c.Param("cursor")
 
 	var err error
 	cursor := 0
@@ -38,6 +40,55 @@ func (p *ProductController) GetAllProducts(c *gin.Context) {
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{"products": products})
+}
+
+func (p *ProductController) GetProductByID(c *gin.Context) {
+	id := c.Param("id")
+	if id == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Product ID is required"})
+		return
+	}
+
+	productID, err := strconv.Atoi(id)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid product ID"})
+		return
+	}
+
+	product, err := p.service.GetProductByID(productID)
+	if err != nil {
+		if err == gorm.ErrRecordNotFound {
+			c.JSON(http.StatusNotFound, gin.H{"error": "Product not found"})
+			return
+		}
+		c.JSON(http.StatusInternalServerError, gin.H{"error": fmt.Sprintf("Failed to get product. %v", err)})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"product": product})
+}
+
+func (p *ProductController) UpdateProduct(c *gin.Context) {
+	var product models.Product
+	if err := c.ShouldBindJSON(&product); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid input"})
+		return
+	}
+
+	if product.ID == 0 {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Product ID is required"})
+		return
+	}
+
+	if err := p.service.UpdateProduct(&product); err != nil {
+		if err == gorm.ErrRecordNotFound {
+			c.JSON(http.StatusNotFound, gin.H{"error": "Product not found"})
+			return
+		}
+		c.JSON(http.StatusInternalServerError, gin.H{"error": fmt.Sprintf("Failed to update product. %v", err)})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "Product updated successfully"})
 }
 
 func (p *ProductController) UploadProductImages(c *gin.Context) {

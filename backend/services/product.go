@@ -29,6 +29,23 @@ func (p *ProductService) GetAllProducts(cursor int) ([]*models.Product, error) {
 	return products, nil
 }
 
+func (p *ProductService) GetProductByID(id int) (*models.Product, error) {
+	product, err := p.db.GetByID(id)
+	if err != nil {
+		return nil, err
+	}
+	return product, nil
+}
+
+func (p *ProductService) UpdateProduct(product *models.Product) error {
+	err := p.db.Update(product)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (p *ProductService) UploadProductImages(files []*multipart.FileHeader) ([]string, error) {
 	var urls []string
 

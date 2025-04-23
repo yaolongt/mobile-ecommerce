@@ -1,0 +1,18 @@
+meta {
+  name: update_product
+  type: http
+  seq: 5
+}
+
+put {
+  url: {{docker}}/api/v1/product
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+      "id": 5,
+      "inventory": 0
+    }
+}
