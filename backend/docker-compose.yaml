@@ -23,6 +23,20 @@ services:
       db:
         condition: service_healthy
 
+  minio:
+    image: minio/minio
+    container_name: minio
+    restart: always
+    ports:
+      - "9000:9000" # API port
+      - "9001:9001" # Web UI port
+    volumes:
+      - ./minio-data:/data # Persist data locally
+    environment:
+      MINIO_ROOT_USER: ${S3_ACCESS_KEY}
+      MINIO_ROOT_PASSWORD: ${S3_SECRET_KEY}
+    command: server /data --console-address ":9001"
+
   backend:
     container_name: backend
     build:

@@ -1,5 +1,6 @@
 .DS_Store
 .env.local
+minio-data
 
 // local build file for development
 main

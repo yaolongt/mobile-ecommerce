@@ -14,6 +14,10 @@ var (
 	POSTGRESQL_CONN_STRING_SLAVE    string
 	POSTGRESQL_MAX_IDLE_CONNECTIONS int
 	POSTGRESQL_MAX_OPEN_CONNECTIONS int
+	S3_BUCKET                       string
+	S3_ENDPOINT                     string
+	S3_ACCESS_KEY                   string
+	S3_SECRET_KEY                   string
 )
 
 func InitEnv() {
@@ -28,6 +32,11 @@ func InitEnv() {
 
 	POSTGRESQL_MAX_IDLE_CONNECTIONS = getEnvAsInt("POSTGRESQL_MAX_IDLE_CONNECTIONS", 10)
 	POSTGRESQL_MAX_OPEN_CONNECTIONS = getEnvAsInt("POSTGRESQL_MAX_OPEN_CONNECTIONS", 5)
+
+	S3_BUCKET = getEnv("S3_BUCKET", "backend")
+	S3_ENDPOINT = getEnv("S3_ENDPOINT", "http://localhost:9000")
+	S3_ACCESS_KEY = getEnv("S3_ACCESS_KEY", "minioadmin")
+	S3_SECRET_KEY = getEnv("S3_SECRET_KEY", "minioadmin")
 
 	fmt.Println("Initialization of environment variables complete")
 }

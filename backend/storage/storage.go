@@ -1,6 +1,7 @@
-package configs
+package storage
 
 import (
+	"backend/configs"
 	"fmt"
 	"sync"
 
@@ -27,7 +28,7 @@ func GetStorageInstance() *Storage {
 
 func (s *Storage) InitDB() {
 	var err error
-	s.write, err = gorm.Open(postgres.Open(POSTGRESQL_CONN_STRING_MASTER), &gorm.Config{})
+	s.write, err = gorm.Open(postgres.Open(configs.POSTGRESQL_CONN_STRING_MASTER), &gorm.Config{})
 	if err != nil {
 		fmt.Errorf("Error establishing connection to write DB: %v", err)
 		return
@@ -37,10 +38,10 @@ func (s *Storage) InitDB() {
 		fmt.Errorf("Error getting write DB: %v", err)
 		return
 	}
-	writeDB.SetMaxIdleConns(POSTGRESQL_MAX_IDLE_CONNECTIONS)
-	writeDB.SetMaxOpenConns(POSTGRESQL_MAX_OPEN_CONNECTIONS)
+	writeDB.SetMaxIdleConns(configs.POSTGRESQL_MAX_IDLE_CONNECTIONS)
+	writeDB.SetMaxOpenConns(configs.POSTGRESQL_MAX_OPEN_CONNECTIONS)
 
-	s.read, err = gorm.Open(postgres.Open(POSTGRESQL_CONN_STRING_SLAVE), &gorm.Config{})
+	s.read, err = gorm.Open(postgres.Open(configs.POSTGRESQL_CONN_STRING_SLAVE), &gorm.Config{})
 	if err != nil {
 		fmt.Errorf("Error establishing connection to read DB: %v", err)
 		return
@@ -50,8 +51,8 @@ func (s *Storage) InitDB() {
 		fmt.Errorf("Error getting read DB: %v", err)
 		return
 	}
-	readDB.SetMaxIdleConns(POSTGRESQL_MAX_IDLE_CONNECTIONS)
-	readDB.SetMaxOpenConns(POSTGRESQL_MAX_OPEN_CONNECTIONS)
+	readDB.SetMaxIdleConns(configs.POSTGRESQL_MAX_IDLE_CONNECTIONS)
+	readDB.SetMaxOpenConns(configs.POSTGRESQL_MAX_OPEN_CONNECTIONS)
 }
 
 func (s *Storage) CloseDB() {
