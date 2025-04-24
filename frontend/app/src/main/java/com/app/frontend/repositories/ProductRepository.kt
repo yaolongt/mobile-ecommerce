@@ -9,7 +9,13 @@ class ProductRepository {
 
     suspend fun getAllProducts(): Result<GetAllProductResponse> = try {
         val response = apiService.getAllProducts()
-        Result.success(response)
+        Result.success(
+            GetAllProductResponse(
+                products = response.products,
+                nextOffset = response.nextOffset,
+                total = response.total
+            )
+        )
     } catch (e: Exception) {
         Log.e("ProductRepository", e.toString())
         Result.failure(e)

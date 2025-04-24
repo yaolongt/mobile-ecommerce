@@ -1,5 +1,7 @@
 package com.app.frontend.api
 
+import com.app.frontend.models.Product
+import com.google.gson.GsonBuilder
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
@@ -14,11 +16,15 @@ object RetrofitClient {
         })
         .build()
 
+    val gson = GsonBuilder()
+        .registerTypeAdapter(Product::class.java, Product.Deserializer())
+        .create()
+
     val instance: ApiService by lazy {
         Retrofit.Builder()
             .baseUrl(BASE_URL)
             .client(okHttpClient)
-            .addConverterFactory(GsonConverterFactory.create())
+            .addConverterFactory(GsonConverterFactory.create(gson))
             .build()
             .create(ApiService::class.java)
     }

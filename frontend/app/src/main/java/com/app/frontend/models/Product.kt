@@ -1,13 +1,10 @@
 package com.app.frontend.models
 
-sealed class ProductCategory(val value: String) {
-    data object Electronics : ProductCategory("electronics")
-    data object Clothing : ProductCategory("clothing")
-    data object HomeAppliances : ProductCategory("home_appliances")
-    data object Books : ProductCategory("books")
-    data object Toys : ProductCategory("toys")
-    data object Misc : ProductCategory("misc")
-}
+import com.google.gson.JsonDeserializationContext
+import com.google.gson.JsonDeserializer
+import com.google.gson.JsonElement
+import java.lang.reflect.Type
+
 data class Product(
     val id: Int,
     val name: String,
@@ -15,7 +12,32 @@ data class Product(
     val inventory: Int,
     val category: ProductCategory,
     val description: String? = null,
-    val images: Array<String>? = null,
+    val images: List<String>? = null,
     val createdAt: String? = null,
     val updatedAt: String? = null
-)
+) {
+    class Deserializer : JsonDeserializer<Product> {
+        override fun deserialize(
+            json: JsonElement?,
+            typeOfT: Type?,
+            context: JsonDeserializationContext?
+        ): Product {
+            val jsonObject = json!!.asJsonObject
+            var images: List<String>? = null
+            if (jsonObject.has("images") && !jsonObject.get("images").isJsonNull) {
+                images = jsonObject.getAsJsonArray("images").map { it.asString }
+            }
+            return Product(
+                id = jsonObject.get("id").asInt,
+                name = jsonObject.get("name").asString,
+                price = jsonObject.get("price").asFloat,
+                inventory = jsonObject.get("inventory").asInt,
+                category = ProductCategory.fromString(jsonObject.get("category").asString),
+                description = jsonObject.get("description").asString,
+                images = images,
+                createdAt = jsonObject.get("created_at").asString,
+                updatedAt = jsonObject.get("updated_at").asString
+            )
+        }
+    }
+}
