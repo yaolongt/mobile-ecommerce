@@ -1,11 +1,13 @@
-package com.app.kotlin_oauth.activities
+package com.app.frontend.activities
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
-import com.app.kotlin_oauth.pages.ProductDetailPage
+import androidx.compose.ui.unit.dp
+import com.app.frontend.components.ProductDetailPager
 
 class ProductDetailActivity : BaseActivity() {
     override val showNavigationBar: Boolean = false
@@ -16,15 +18,17 @@ class ProductDetailActivity : BaseActivity() {
         val productId = intent.getIntExtra("productId", -1)
 
         Column(
-            modifier = modifier
+            modifier = modifier,
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            ProductDetailPage(productId)
+            ProductDetailPager()
         }
     }
 
     @Preview
     @Composable
-    private fun PreviewProductDetailActivity() {
-        ProductDetailPage()
+    override fun PreviewActivityContent() {
+        ActivityContent()
     }
 }

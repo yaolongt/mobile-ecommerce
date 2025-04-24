@@ -1,4 +1,4 @@
-package com.app.kotlin_oauth.ui.theme
+package com.app.frontend.ui.theme
 
 import androidx.compose.material3.Typography
 import androidx.compose.ui.text.TextStyle
@@ -6,7 +6,7 @@ import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
-import com.app.kotlin_oauth.R
+import com.app.frontend.R
 
 // Define your custom font family
 val CustomFontFamily = FontFamily(

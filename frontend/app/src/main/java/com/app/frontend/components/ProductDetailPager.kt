@@ -1,4 +1,4 @@
-package com.app.kotlin_oauth.components
+package com.app.frontend.components
 
 import androidx.compose.runtime.getValue
 import androidx.compose.animation.core.animateFloatAsState
@@ -20,7 +20,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.app.kotlin_oauth.R
+import com.app.frontend.R
 
 @Composable
 fun ProductDetailPager() {

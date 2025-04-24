@@ -1,4 +1,4 @@
-package com.app.kotlin_oauth.components
+package com.app.frontend.components
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -40,7 +40,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.app.kotlin_oauth.R
+import com.app.frontend.R
 
 @Composable
 fun ProductDisplayCard(

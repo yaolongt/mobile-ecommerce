@@ -1,4 +1,4 @@
-package com.app.kotlin_oauth.ui.theme
+package com.app.frontend.ui.theme
 
 import androidx.compose.ui.graphics.Color
 

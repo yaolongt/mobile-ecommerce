@@ -5,11 +5,11 @@ plugins {
 }
 
 android {
-    namespace = "com.app.kotlin_oauth"
+    namespace = "com.app.frontend"
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "com.app.kotlin_oauth"
+        applicationId = "com.app.frontend"
         minSdk = 24
         targetSdk = 35
         versionCode = 1
@@ -51,6 +51,11 @@ dependencies {
     implementation(libs.graphics.shape)
     implementation(libs.androidx.foundation)
     implementation(libs.navigation.compose)
+    implementation(libs.retrofit)
+    implementation(libs.retrofit.converter.gson)
+    implementation(libs.okhttp)
+    implementation(libs.logging.interceptor)
+    implementation(libs.coroutine)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

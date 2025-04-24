@@ -1,4 +1,4 @@
-package com.app.kotlin_oauth.components
+package com.app.frontend.components
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
@@ -8,18 +8,19 @@ import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.navigation.NavController
-import androidx.navigation.compose.currentBackStackEntryAsState
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.app.frontend.viewmodels.NavigationViewModel
+import androidx.compose.runtime.getValue
 
 @Composable
-fun AppNavigationBar(navController: NavController) {
+fun AppNavigationBar() {
+    val viewModel: NavigationViewModel = viewModel()
+    val currentRoute by viewModel.currentRoute // Observe route changes
+
     val items = listOf(
         NavigationItem("Home", "home", Icons.Filled.Home, Icons.Outlined.Home),
         NavigationItem("User", "user", Icons.Filled.Person, Icons.Outlined.Person)
     )
-
-    val navBackStackEntry by navController.currentBackStackEntryAsState()
-    val currentRoute = navBackStackEntry?.destination?.route
 
     NavigationBar {
         items.forEach { item ->
@@ -33,16 +34,7 @@ fun AppNavigationBar(navController: NavController) {
                 label = { Text(item.label) },
                 selected = currentRoute == item.route,
                 onClick = {
-                    if (currentRoute != item.route) {
-                        navController.navigate(item.route) {
-                            // Avoid multiple copies of the same destination
-                            launchSingleTop = true
-                            restoreState = true
-                            popUpTo(navController.graph.startDestinationId) {
-                                saveState = true
-                            }
-                        }
-                    }
+                    viewModel.navigateTo(item.route)
                 }
             )
         }

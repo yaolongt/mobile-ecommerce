@@ -1,9 +1,9 @@
-package com.app.kotlin_oauth.components
+package com.app.frontend.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -21,7 +21,7 @@ fun AppTopBar(onBackPressed: () -> Unit) {
         title = { Text(text = "Default Title", style = MaterialTheme.typography.titleLarge) },
         navigationIcon = {
             IconButton(onClick = { onBackPressed() }) {
-                Icon(Icons.Filled.ArrowBack, null)
+                Icon(Icons.AutoMirrored.Filled.ArrowBack, null)
             }
         },
         modifier = Modifier.fillMaxWidth().background(Color.LightGray),

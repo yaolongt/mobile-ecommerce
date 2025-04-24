@@ -1,4 +1,4 @@
-package com.app.kotlin_oauth
+package com.app.frontend
 
 import org.junit.Test
 
