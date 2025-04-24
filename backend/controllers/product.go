@@ -22,24 +22,24 @@ func NewProductController(service *services.ProductService) *ProductController {
 }
 
 func (p *ProductController) GetAllProducts(c *gin.Context) {
-	cursorQuery := c.Param("cursor")
+	offsetQuery := c.Query("offset")
 
 	var err error
-	cursor := 0
-	if cursorQuery != "" {
-		cursor, err = strconv.Atoi(cursorQuery)
+	offset := 0
+	if offsetQuery != "" {
+		offset, err = strconv.Atoi(offsetQuery)
 		if err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid cursor"})
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid offset"})
 			return
 		}
 	}
 
-	products, err := p.service.GetAllProducts(cursor)
+	result, err := p.service.GetAllProducts(offset)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": fmt.Sprintf("Failed to get products. %v", err)})
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{"products": products})
+	c.JSON(http.StatusOK, result)
 }
 
 func (p *ProductController) GetProductByID(c *gin.Context) {

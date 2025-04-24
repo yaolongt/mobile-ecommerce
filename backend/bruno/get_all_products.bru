@@ -5,11 +5,11 @@ meta {
 }
 
 get {
-  url: {{docker}}/api/v1/product?cursor=1
+  url: {{docker}}/api/v1/product?offset=1
   body: none
   auth: inherit
 }
 
 params:query {
-  cursor: 1
+  offset: 1
 }

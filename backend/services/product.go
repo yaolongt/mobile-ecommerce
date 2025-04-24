@@ -20,13 +20,20 @@ func NewProductService() *ProductService {
 	}
 }
 
-func (p *ProductService) GetAllProducts(cursor int) ([]*models.Product, error) {
+func (p *ProductService) GetAllProducts(offset int) (*map[string]interface{}, error) {
 	limit := 20
-	products, _, err := p.db.List(limit, cursor)
+	products, total, nextOffset, err := p.db.List(limit, offset)
 	if err != nil {
 		return nil, err
 	}
-	return products, nil
+
+	response := &map[string]interface{}{
+		"products":   products,
+		"total":      total,
+		"nextOffset": nextOffset,
+	}
+
+	return response, nil
 }
 
 func (p *ProductService) GetProductByID(id int) (*models.Product, error) {

@@ -2,12 +2,13 @@ package storage
 
 import (
 	"backend/models"
+	"fmt"
 
 	"gorm.io/gorm"
 )
 
 type ProductInterface interface {
-	List(limit, cursor int) ([]*models.Product, int, error)
+	List(limit, offset int) ([]*models.Product, int, int, error)
 	GetByID(id int) (*models.Product, error)
 	Update(product *models.Product) error
 	UpdateInventory(id int, inventory int) error
@@ -27,25 +28,30 @@ func NewProductDB(read, write *gorm.DB) ProductInterface {
 	}
 }
 
-func (p *ProductDB) List(limit, cursor int) ([]*models.Product, int, error) {
+func (p *ProductDB) List(limit, offset int) ([]*models.Product, int, int, error) {
 	var products []*models.Product
-	query := p.read.Where("is_deleted = false").Order("updated_at DESC").Order("id ASC").Limit(limit)
+	query := p.read.Model(&models.Product{}).Where("is_deleted = false")
 
 	// count total products
 	var total int64
-	if err := query.Model(&models.Product{}).Count(&total).Error; err != nil {
-		return nil, 0, err
+	if err := query.Count(&total).Error; err != nil {
+		return nil, 0, 0, err
 	}
 
-	if cursor > 0 {
-		query = query.Where("id > ?", cursor)
+	query = query.Order("updated_at DESC").Order("id ASC").Limit(limit)
+	fmt.Println("offset", offset)
+
+	if offset > 0 {
+		query = query.Offset(offset)
 	}
 
 	if err := query.Find(&products).Error; err != nil {
-		return nil, 0, err
+		return nil, 0, 0, err
 	}
 
-	return products, int(total), nil
+	nextOffset := offset + len(products)
+
+	return products, int(total), nextOffset, nil
 }
 
 func (p *ProductDB) GetByID(id int) (*models.Product, error) {
