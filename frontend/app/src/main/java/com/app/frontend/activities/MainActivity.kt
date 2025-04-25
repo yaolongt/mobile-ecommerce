@@ -1,12 +1,10 @@
 package com.app.frontend.activities
 
-import android.content.Intent
 import androidx.compose.foundation.layout.Column
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
@@ -33,15 +31,7 @@ class MainActivity : BaseActivity() {
                 startDestination = "home",
             ) {
                 composable("home") {
-                    val ctx = LocalContext.current
-
-                    ProductDisplayList(
-                        onProductClick = {
-                            val intent = Intent(ctx, ProductDetailActivity::class.java)
-                            intent.putExtra("productId", it)
-                            ctx.startActivity(intent)
-                        },
-                    )
+                    ProductDisplayList()
                 }
                 composable("user") {
                     // You can create a dummy UserPage() if needed

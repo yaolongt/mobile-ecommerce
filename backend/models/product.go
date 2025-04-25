@@ -1,6 +1,10 @@
 package models
 
-import "time"
+import (
+	"time"
+
+	pq "github.com/lib/pq"
+)
 
 type ProductCategory string
 
@@ -20,7 +24,7 @@ type Product struct {
 	Inventory   int             `json:"inventory" gorm:"check: inventory >= 0"`
 	Category    ProductCategory `json:"category" gorm:"type:product_category;default:misc"`
 	Description string          `json:"description"`
-	Images      []string        `json:"images" gorm:"type:text[]"`
+	Images      pq.StringArray  `gorm:"type:text[]" json:"images"` // Using pq driver
 	CreatedAt   time.Time       `json:"created_at" gorm:"autoCreateTime"`
 	UpdatedAt   time.Time       `json:"updated_at" gorm:"autoUpdateTime"`
 }

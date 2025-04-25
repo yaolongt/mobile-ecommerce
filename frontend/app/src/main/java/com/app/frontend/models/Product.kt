@@ -3,6 +3,7 @@ package com.app.frontend.models
 import com.google.gson.JsonDeserializationContext
 import com.google.gson.JsonDeserializer
 import com.google.gson.JsonElement
+import java.io.Serializable
 import java.lang.reflect.Type
 
 data class Product(
@@ -15,7 +16,7 @@ data class Product(
     val images: List<String>? = null,
     val createdAt: String? = null,
     val updatedAt: String? = null
-) {
+): Serializable {
     class Deserializer : JsonDeserializer<Product> {
         override fun deserialize(
             json: JsonElement?,
@@ -40,4 +41,5 @@ data class Product(
             )
         }
     }
+
 }
