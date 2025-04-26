@@ -9,6 +9,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
+import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -21,16 +24,17 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.app.frontend.activities.ProductDetailActivity
-import com.app.frontend.models.Product
 import com.app.frontend.viewmodels.ProductViewModel
-import com.app.frontend.models.ProductCategory
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProductDisplayList(
     viewModel: ProductViewModel = viewModel(),
 ) {
     val state by viewModel.products.collectAsState()
     val listState = rememberLazyListState()
+
+    val pullToRefreshState = rememberPullToRefreshState()
 
     // Pagination detection
     LaunchedEffect(listState) {
@@ -42,46 +46,51 @@ fun ProductDisplayList(
             }
     }
 
-    LazyColumn(
-        state = listState,
-        modifier = Modifier.fillMaxSize(),
-        verticalArrangement = Arrangement.spacedBy(12.dp)
+    PullToRefreshBox(
+        isRefreshing = viewModel.isRefreshing,
+        onRefresh = { viewModel.refresh() },
     ) {
-        // Show skeletons when loading initial data
-        if (viewModel.isLoading || state.isEmpty()) {
-            items(10) { // Show 10 skeleton items
-                ProductDisplayCardSkeleton(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 16.dp)
-                )
-            }
-        }
-        // Show actual products when loaded
-        else {
-            items(state.size) { index ->
-                val product = state[index]
-                val ctx = LocalContext.current
-                ProductDisplayCard(
-                    product = product,
-                    onClick = {
-                        val intent = Intent(ctx, ProductDetailActivity::class.java)
-                        intent.putExtra("product", product)
-                        ctx.startActivity(intent)
-                    }
-                )
-            }
-
-            // Show loading indicator at bottom during pagination
-            if (viewModel.isLoading && state.isNotEmpty()) {
-                item {
-                    Column(
+        LazyColumn(
+            state = listState,
+            modifier = Modifier.fillMaxSize(),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            // Show skeletons when loading initial data
+            if (viewModel.isLoading || state.isEmpty()) {
+                items(10) { // Show 10 skeleton items
+                    ProductDisplayCardSkeleton(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(vertical = 16.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        CircularProgressIndicator()
+                            .padding(horizontal = 16.dp)
+                    )
+                }
+            }
+            // Show actual products when loaded
+            else {
+                items(state.size) { index ->
+                    val product = state[index]
+                    val ctx = LocalContext.current
+                    ProductDisplayCard(
+                        product = product,
+                        onClick = {
+                            val intent = Intent(ctx, ProductDetailActivity::class.java)
+                            intent.putExtra("product", product)
+                            ctx.startActivity(intent)
+                        }
+                    )
+                }
+
+                // Show loading indicator at bottom during pagination
+                if (viewModel.isPaginationLoading && state.isNotEmpty()) {
+                    item {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 16.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            CircularProgressIndicator()
+                        }
                     }
                 }
             }

@@ -10,22 +10,17 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.app.frontend.components.AppNavigationBar
-import com.app.frontend.components.AppTopBar
 import com.app.frontend.ui.theme.AppTheme
 import com.app.frontend.viewmodels.NavigationViewModel
 
 abstract class BaseActivity : ComponentActivity() {
     protected val navViewModel: NavigationViewModel by viewModels()
-
     open val showNavigationBar: Boolean = true
-    open val showTopBar: Boolean = false
 
     @SuppressLint("StateFlowValueCalledInComposition", "UnusedMaterial3ScaffoldPaddingParameter")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -40,11 +35,6 @@ abstract class BaseActivity : ComponentActivity() {
                 }
 
                 Scaffold(
-                    topBar = {
-                        if (showTopBar) {
-                            AppTopBar(onBackPressed = { finish() })
-                        }
-                    },
                     bottomBar = {
                         if (showNavigationBar) {
                             AppNavigationBar()

@@ -37,6 +37,7 @@ import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SuggestionChip
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
@@ -59,7 +60,6 @@ import com.app.frontend.models.ProductCategory
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import coil3.compose.AsyncImage
-import coil3.compose.AsyncImagePainter
 import java.net.URLEncoder
 
 @Composable
@@ -75,9 +75,6 @@ fun ProductDetail(product: Product) {
         // Product Info
         ProductInfoSection(product)
 
-        // Color/Size Selector
-        ProductVariantSelector()
-
         // Description
         ProductDescriptionSection(product)
 
@@ -87,7 +84,7 @@ fun ProductDetail(product: Product) {
 }
 
 @Composable
-private fun ProductImageGallery(productImages: List<String>?) {
+fun ProductImageGallery(productImages: List<String>?) {
     val placeholderImageRes = R.drawable.carlos_sainz
     val images = productImages?.takeIf { it.isNotEmpty() } ?: listOf(placeholderImageRes.toString())
     val pagerState = rememberPagerState(pageCount = { images.size })
@@ -176,9 +173,8 @@ private fun ProductImageGallery(productImages: List<String>?) {
     }
 }
 
-
 @Composable
-private fun ProductInfoSection(product: Product) {
+fun ProductInfoSection(product: Product) {
     Column(
         modifier = Modifier
             .padding(16.dp)
@@ -213,6 +209,14 @@ private fun ProductInfoSection(product: Product) {
                 )
             }
         }
+
+        SuggestionChip(
+            enabled = false,
+            label = {
+            Text(
+                text = "Category: ${product.category.value}",
+                style = MaterialTheme.typography.bodySmall)
+                               }, onClick = {})
 
         Spacer(modifier = Modifier.height(8.dp))
 
@@ -250,7 +254,7 @@ private fun ProductInfoSection(product: Product) {
 
         if (product.inventory > 0) {
             Text(
-                text = "In Stock",
+                text = "In Stock: ${product.inventory}",
                 color = Color(0xFF4CAF50),
                 modifier = Modifier.padding(top = 4.dp)
             )
@@ -265,103 +269,7 @@ private fun ProductInfoSection(product: Product) {
 }
 
 @Composable
-private fun ProductVariantSelector() {
-    val colors = listOf(
-        Color(0xFFF44336), // Red
-        Color(0xFF2196F3), // Blue
-        Color(0xFF4CAF50), // Green
-        Color(0xFF9E9E9E)  // Gray
-    )
-
-    val sizes = listOf("S", "M", "L", "XL", "XXL")
-    var selectedColor by remember { mutableStateOf(0) }
-    var selectedSize by remember { mutableStateOf(1) }
-
-    Column(
-        modifier = Modifier
-            .padding(horizontal = 16.dp)
-            .fillMaxWidth()
-    ) {
-        Text(
-            text = "Color",
-            style = MaterialTheme.typography.titleMedium,
-            fontWeight = FontWeight.SemiBold,
-            modifier = Modifier.padding(bottom = 8.dp)
-        )
-
-        Row(
-            horizontalArrangement = Arrangement.spacedBy(12.dp),
-            modifier = Modifier.horizontalScroll(rememberScrollState())
-        ) {
-            colors.forEachIndexed { index, color ->
-                Box(
-                    modifier = Modifier
-                        .size(40.dp)
-                        .clip(CircleShape)
-                        .background(color)
-                        .border(
-                            width = if (selectedColor == index) 2.dp else 0.dp,
-                            color = MaterialTheme.colorScheme.primary,
-                            shape = CircleShape
-                        )
-                        .clickable { selectedColor = index }
-                )
-            }
-        }
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        Text(
-            text = "Size",
-            style = MaterialTheme.typography.titleMedium,
-            fontWeight = FontWeight.SemiBold,
-            modifier = Modifier.padding(bottom = 8.dp)
-        )
-
-        Row(
-            horizontalArrangement = Arrangement.spacedBy(12.dp),
-            modifier = Modifier.horizontalScroll(rememberScrollState())
-        ) {
-            sizes.forEachIndexed { index, size ->
-                Box(
-                    modifier = Modifier
-                        .width(48.dp)
-                        .height(48.dp)
-                        .clip(RoundedCornerShape(8.dp))
-                        .background(
-                            if (selectedSize == index)
-                                MaterialTheme.colorScheme.primary
-                            else
-                                MaterialTheme.colorScheme.surfaceVariant
-                        )
-                        .clickable { selectedSize = index },
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(
-                        text = size,
-                        color = if (selectedSize == index)
-                            MaterialTheme.colorScheme.onPrimary
-                        else
-                            MaterialTheme.colorScheme.onSurfaceVariant,
-                        fontWeight = FontWeight.Medium
-                    )
-                }
-            }
-        }
-    }
-
-    Divider(
-        modifier = Modifier
-            .padding(vertical = 16.dp)
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp),
-        thickness = 1.dp,
-        color = MaterialTheme.colorScheme.surfaceVariant
-    )
-}
-
-@Composable
-private fun ProductDescriptionSection(product: Product) {
+fun ProductDescriptionSection(product: Product) {
     Column(
         modifier = Modifier
             .padding(horizontal = 16.dp)
@@ -383,7 +291,7 @@ private fun ProductDescriptionSection(product: Product) {
 }
 
 @Composable
-private fun ProductReviewsSection() {
+fun ProductReviewsSection() {
     Column(
         modifier = Modifier
             .padding(16.dp)
@@ -466,7 +374,7 @@ private fun ProductReviewsSection() {
 
 @Preview
 @Composable
-private fun PreviewProductDetail() {
+fun PreviewProductDetail() {
     val product = Product(
         id = 1,
         name = "Product 1",
