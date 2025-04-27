@@ -8,7 +8,7 @@ import (
 )
 
 type ProductInterface interface {
-	List(limit, offset int) ([]*models.Product, int, int, error)
+	List(limit, offset int, sort, filter string, direction string) ([]*models.Product, int, int, error)
 	GetByID(id int) (*models.Product, error)
 	Update(product *models.Product) error
 	UpdateInventory(id int, inventory int) error
@@ -29,9 +29,40 @@ func NewProductDB(read, write *gorm.DB) ProductInterface {
 	}
 }
 
-func (p *ProductDB) List(limit, offset int) ([]*models.Product, int, int, error) {
+func (p *ProductDB) List(limit, offset int, sort, filter string, direction string) ([]*models.Product, int, int, error) {
 	var products []*models.Product
 	query := p.read.Model(&models.Product{}).Where("is_deleted = false")
+
+	if filter != "" {
+		switch filter {
+		case string(models.CategoryElectronics),
+			string(models.CategoryClothing),
+			string(models.CategoryHome),
+			string(models.CategoryBooks),
+			string(models.CategoryToys),
+			string(models.CategoryMisc):
+			query = query.Where("category = ?", filter)
+		case "in_stock":
+			query = query.Where("inventory > 0")
+		default:
+			return nil, 0, 0, fmt.Errorf("Invalid filter applied: %s", filter)
+		}
+	}
+
+	if sort != "" {
+		dir := "ASC"
+		if direction == "desc" {
+			dir = "DESC"
+		}
+		switch sort {
+		case "name":
+			query = query.Order(fmt.Sprintf("name %s", dir))
+		case "price":
+			query = query.Order(fmt.Sprintf("price %s", dir))
+		default:
+			return nil, 0, 0, fmt.Errorf("Invalid sort applied: %s", sort)
+		}
+	}
 
 	// count total products
 	var total int64
@@ -40,7 +71,6 @@ func (p *ProductDB) List(limit, offset int) ([]*models.Product, int, int, error)
 	}
 
 	query = query.Order("updated_at DESC").Order("id ASC").Limit(limit)
-	fmt.Println("offset", offset)
 
 	if offset > 0 {
 		query = query.Offset(offset)

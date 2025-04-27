@@ -34,7 +34,11 @@ func (p *ProductController) GetAllProducts(c *gin.Context) {
 		}
 	}
 
-	result, err := p.service.GetAllProducts(offset)
+	sortQuery := c.Query("sort")
+	sortDirection := c.Query("direction")
+	filterQuery := c.Query("filter")
+
+	result, err := p.service.GetAllProducts(offset, sortQuery, filterQuery, sortDirection)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": fmt.Sprintf("Failed to get products. %v", err)})
 		return

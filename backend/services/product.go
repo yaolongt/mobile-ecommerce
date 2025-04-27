@@ -20,9 +20,10 @@ func NewProductService() *ProductService {
 	}
 }
 
-func (p *ProductService) GetAllProducts(offset int) (*map[string]interface{}, error) {
+func (p *ProductService) GetAllProducts(offset int, sort, filter, direction string) (*map[string]interface{}, error) {
 	limit := 20
-	products, total, nextOffset, err := p.db.List(limit, offset)
+
+	products, total, nextOffset, err := p.db.List(limit, offset, sort, filter, direction)
 	if err != nil {
 		return nil, err
 	}
