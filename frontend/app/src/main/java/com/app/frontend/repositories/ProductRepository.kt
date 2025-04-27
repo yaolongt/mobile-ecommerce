@@ -1,16 +1,28 @@
 package com.app.frontend.repositories
 
 import android.util.Log
+import androidx.compose.ui.text.toLowerCase
 import com.app.frontend.api.RetrofitClient
 import com.app.frontend.models.GetProductResponse
 import com.app.frontend.models.GetSearchProductResponse
 import com.app.frontend.models.Product
+import com.app.frontend.models.ProductFilterOption
+import com.app.frontend.models.ProductSortOption
 
 class ProductRepository {
     private val apiService = RetrofitClient.instance
 
-    suspend fun getAllProducts(offset: Int): Result<GetProductResponse> = try {
-        val response = apiService.getAllProducts(offset)
+    suspend fun getAllProducts(
+        offset: Int,
+        sort: String? = null,
+        direction: String? = null,
+        filter: String? = null): Result<GetProductResponse> = try {
+        val response = apiService.getAllProducts(
+            offset,
+            sort = sort,
+            direction = direction,
+            filter = filter?.lowercase()
+        )
         Result.success(
             GetProductResponse(
                 products = response.products,

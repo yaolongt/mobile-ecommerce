@@ -5,6 +5,11 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.app.frontend.models.Product
+import com.app.frontend.models.ProductCategory
+import com.app.frontend.models.ProductFilterOption
+import com.app.frontend.models.ProductSortOption
+import com.app.frontend.models.getCategory
+import com.app.frontend.models.toApiString
 import com.app.frontend.repositories.ProductRepository
 import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
@@ -25,8 +30,18 @@ class ProductViewModel(
 
     private val _isRefreshing = mutableStateOf(false)
     val isRefreshing: Boolean get() = _isRefreshing.value
+
     private val _isPaginationLoading = mutableStateOf(false)
     val isPaginationLoading: Boolean get() = _isPaginationLoading.value
+
+    private val _currentSortOption = mutableStateOf(ProductSortOption.DEFAULT)
+    val currentSortOption: ProductSortOption get() = _currentSortOption.value
+
+    private val _currentFilterOption = mutableStateOf<ProductFilterOption>(ProductFilterOption.ALL)
+    val currentFilterOption: ProductFilterOption get() = _currentFilterOption.value
+
+    private val _isFilterOrSortApplied = mutableStateOf(false)
+    val isFilterOrSortApplied: Boolean get() = _isFilterOrSortApplied.value
 
     private val _error = mutableStateOf<String?>(null)
 
@@ -59,15 +74,25 @@ class ProductViewModel(
         }
     }
 
-    fun fetchProducts(isInitial: Boolean = false) = viewModelScope.launch {
+    fun fetchProducts(isInitial: Boolean = false, resetForFilterSort: Boolean = false) = viewModelScope.launch {
+        val shouldResetOffset = isInitial || _isRefreshing.value || resetForFilterSort
+        val offset = if (shouldResetOffset) 0 else _nextOffset.value
+
         toggleLoading(isInitial, true)
         _error.value = null
 
         loadingStartTime = System.currentTimeMillis()
 
         try {
-            val offset = if (isInitial || _isRefreshing.value) 0 else _nextOffset.value
-            val apiCall = async { productRepository.getAllProducts(offset) }
+            val sortParams = _currentSortOption.value.toQueryParam().split(",")
+            val apiCall = async {
+                productRepository.getAllProducts(
+                    offset = offset,
+                    sort = sortParams.getOrElse(0) { null },
+                    direction = sortParams.getOrElse(1) { null },
+                    filter = if (_isFilterOrSortApplied.value) _currentFilterOption.value.toApiString() else null
+                )
+            }
             val elapsedTime = measureTimeMillis { apiCall.await() }
 
             // Delay for 2 seconds to prevent skeleton flickering
@@ -76,7 +101,6 @@ class ProductViewModel(
                 delay(remainingTime)
             }
 
-
             val result = apiCall.await()
             if (result.isSuccess) {
                 _nextOffset.value = result.getOrNull()?.nextOffset ?: 0
@@ -84,13 +108,11 @@ class ProductViewModel(
 
                 val productResult = result.getOrNull()?.products ?: emptyList()
 
-                if (isInitial) {
+                if (isInitial || resetForFilterSort) {
                     _products.value = productResult
                 } else {
                     _products.value = _products.value + productResult
                 }
-
-                Log.d("ProductViewModel", "Loaded ${_products.value.size} products")
             } else {
                 _error.value = "Failed to fetch products: ${result.exceptionOrNull()?.message}"
             }
@@ -100,6 +122,7 @@ class ProductViewModel(
             toggleLoading(isInitial, false)
         }
     }
+
     private val _searchResults = MutableStateFlow<List<Product>>(emptyList())
     val searchResults: StateFlow<List<Product>> = _searchResults.asStateFlow()
 
@@ -134,5 +157,49 @@ class ProductViewModel(
     fun clearSearch() {
         _searchResults.value = emptyList()
         _isSearchActive.value = false
+    }
+
+    private fun filterAndSortProducts(products: List<Product>): List<Product> {
+        return when (_currentFilterOption.value) {
+            ProductFilterOption.ALL -> products
+            is ProductFilterOption.BY_CATEGORY -> products.filter {
+                it.category == _currentFilterOption.value.getCategory()
+            }
+
+            ProductFilterOption.IN_STOCK -> TODO()
+        }
+    }
+
+    fun applySort(sortOption: ProductSortOption) {
+        _currentSortOption.value = sortOption
+        _isFilterOrSortApplied.value = true
+        // Fetch fresh data with new sort parameters
+        fetchProducts(resetForFilterSort = true)
+    }
+
+    fun applyFilterOption(filterOption: ProductFilterOption) {
+        _currentFilterOption.value = filterOption
+        _isFilterOrSortApplied.value = true
+        fetchProducts(resetForFilterSort = true)
+    }
+
+    fun applyCategoryFilter(category: ProductCategory) {
+        _currentFilterOption.value = ProductFilterOption.BY_CATEGORY(category)
+        _isFilterOrSortApplied.value = true
+        fetchProducts(resetForFilterSort = true)
+    }
+
+    fun clearFiltersAndSort() {
+        _currentSortOption.value = ProductSortOption.DEFAULT
+        _currentFilterOption.value = ProductFilterOption.ALL
+        _isFilterOrSortApplied.value = false
+        applyFilterAndSort()
+    }
+
+    private fun applyFilterAndSort() {
+        viewModelScope.launch {
+            _products.value = filterAndSortProducts(_products.value)
+            _searchResults.value = filterAndSortProducts(_searchResults.value)
+        }
     }
 }

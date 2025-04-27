@@ -9,7 +9,10 @@ import retrofit2.http.Query
 interface ApiService {
     @GET("product")
     suspend fun getAllProducts(
-        @Query("offset") offset: Int
+        @Query("offset") offset: Int,
+        @Query("sort") sort: String? = null,
+        @Query("direction")direction: String? = null,
+        @Query("filter") filter: String? = null
     ): GetProductResponse
 
     @GET("product/search")

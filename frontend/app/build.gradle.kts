@@ -58,6 +58,7 @@ dependencies {
     implementation(libs.coroutine)
     implementation(libs.coil.compose)
     implementation(libs.coil.network)
+    implementation(libs.material.icon.extended)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

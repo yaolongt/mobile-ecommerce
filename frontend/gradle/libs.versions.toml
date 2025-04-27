@@ -30,6 +30,7 @@ androidx-ui-test-manifest = { group = "androidx.compose.ui", name = "ui-test-man
 androidx-ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit4" }
 androidx-material3 = { group = "androidx.compose.material3", name = "material3" }
 androidx-foundation = { group = "androidx.compose.foundation", name = "foundation-layout" }
+material-icon-extended = { group = "androidx.compose.material", name = "material-icons-extended" }
 graphics-shape = { group = "androidx.graphics", name = "graphics-shapes", version.ref = "shapesVer" }
 navigation-compose = { group = "androidx.navigation", name = "navigation-compose", version.ref = "navVersion" }
 retrofit = { group = "com.squareup.retrofit2", name = "retrofit", version.ref = "retrofit" }

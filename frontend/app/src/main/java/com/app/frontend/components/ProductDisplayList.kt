@@ -1,6 +1,5 @@
 package com.app.frontend.components
 
-import android.content.Context
 import android.content.Intent
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -98,6 +97,8 @@ fun ProductDisplayList(
             onActiveChange = { },
             placeholder = { Text("Search products...") }
         ) {}
+
+        ProductFilterSortBar(viewModel)
 
         // Product List
         PullToRefreshBox(
