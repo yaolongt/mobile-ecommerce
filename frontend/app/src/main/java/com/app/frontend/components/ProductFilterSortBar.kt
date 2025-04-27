@@ -27,7 +27,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.max
 import com.app.frontend.models.ProductCategory
 import com.app.frontend.models.ProductFilterOption
 import com.app.frontend.models.ProductSortOption
@@ -48,220 +47,277 @@ fun ProductFilterSortBar(
         horizontalArrangement = Arrangement.spacedBy(8.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        // Filter Button
         FilterChip(
             selected = viewModel.currentFilterOption != ProductFilterOption.ALL,
             onClick = { showFilterDialog = true },
-            label = {
-                Text(
-                    text = when (viewModel.currentFilterOption) {
-                        is ProductFilterOption.IN_STOCK -> "In Stock"
-                        is ProductFilterOption.BY_CATEGORY -> viewModel.currentFilterOption.getCategory()?.value ?: "Filter"
-                        else -> "Filter"
-                    },
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                    modifier = Modifier.weight(1f, fill = false)
-                )
-            },
-            leadingIcon = {
-                Icon(
-                    imageVector = Icons.Default.List,
-                    contentDescription = "Filter"
-                )
-            },
+            label = { FilterLabel(viewModel.currentFilterOption) },
+            leadingIcon = { FilterIcon() },
             modifier = Modifier.weight(1f)
         )
 
-        // Sort Button
         FilterChip(
             selected = viewModel.currentSortOption != ProductSortOption.DEFAULT,
             onClick = { showSortDialog = true },
-            label = {
-                Text(
-                    text = when (viewModel.currentSortOption) {
-                        ProductSortOption.PRICE_LOW_TO_HIGH -> "Price: Low to High"
-                        ProductSortOption.PRICE_HIGH_TO_LOW -> "Price: High to Low"
-                        ProductSortOption.NAME_A_TO_Z -> "Name: A-Z"
-                        ProductSortOption.NAME_Z_TO_A -> "Name: Z-A"
-                        else -> "Sort"
-                    },
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                    modifier = Modifier.weight(1f, fill = false)
-                )
-            },
-            leadingIcon = {
-                Icon(
-                    imageVector = Icons.Default.Sort,
-                    contentDescription = "Filter"
-                )
-            },
+            label = { SortLabel(viewModel.currentSortOption) },
+            leadingIcon = { SortIcon() },
             modifier = Modifier.weight(1f)
         )
 
-        // Clear Button (only visible when filters/sort are applied)
-        if (viewModel.isFilterOrSortApplied) {
-            TextButton(
-                onClick = {
-                    viewModel.clearFiltersAndSort()
-                    viewModel.fetchProducts(resetForFilterSort = true)
-                },
-                modifier = Modifier.padding(start = 8.dp)
-            ) {
-                Text(
-                    text = "Clear",
-                    style = MaterialTheme.typography.bodySmall,
-                    maxLines = 1,
-                    overflow = TextOverflow.Visible
-                )
+        ClearButton(
+            isVisible = viewModel.isFilterOrSortApplied,
+            onClick = {
+                viewModel.clearFiltersAndSort()
+                viewModel.fetchProducts(resetForFilterSort = true)
             }
-        }
+        )
     }
 
-    // Filter Dialog
-    if (showFilterDialog) {
+    FilterDialog(
+        showDialog = showFilterDialog,
+        currentFilter = viewModel.currentFilterOption,
+        onDismiss = { showFilterDialog = false },
+        onFilterSelected = { filter ->
+            viewModel.applyFilterOption(filter)
+            viewModel.fetchProducts(resetForFilterSort = true)
+            showFilterDialog = false
+        }
+    )
+
+    SortDialog(
+        showDialog = showSortDialog,
+        currentSort = viewModel.currentSortOption,
+        onDismiss = { showSortDialog = false },
+        onSortSelected = { sort ->
+            viewModel.applySort(sort)
+            viewModel.fetchProducts(resetForFilterSort = true)
+            showSortDialog = false
+        }
+    )
+}
+
+@Composable
+private fun FilterLabel(currentFilter: ProductFilterOption) {
+    Text(
+        text = when (currentFilter) {
+            is ProductFilterOption.IN_STOCK -> "In Stock"
+            is ProductFilterOption.BY_CATEGORY -> currentFilter.getCategory()?.value ?: "Filter"
+            else -> "Filter"
+        },
+        maxLines = 1,
+        overflow = TextOverflow.Ellipsis,
+    )
+}
+
+@Composable
+private fun FilterIcon() {
+    Icon(
+        imageVector = Icons.Default.List,
+        contentDescription = "Filter"
+    )
+}
+
+@Composable
+private fun SortLabel(currentSort: ProductSortOption) {
+    Text(
+        text = when (currentSort) {
+            ProductSortOption.PRICE_LOW_TO_HIGH -> "Price: Low to High"
+            ProductSortOption.PRICE_HIGH_TO_LOW -> "Price: High to Low"
+            ProductSortOption.NAME_A_TO_Z -> "Name: A-Z"
+            ProductSortOption.NAME_Z_TO_A -> "Name: Z-A"
+            else -> "Sort"
+        },
+        maxLines = 1,
+        overflow = TextOverflow.Ellipsis,
+    )
+}
+
+@Composable
+private fun SortIcon() {
+    Icon(
+        imageVector = Icons.Default.Sort,
+        contentDescription = "Sort"
+    )
+}
+
+@Composable
+private fun ClearButton(
+    isVisible: Boolean,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    if (isVisible) {
+        TextButton(
+            onClick = onClick,
+            modifier = modifier.padding(start = 8.dp)
+        ) {
+            Text(
+                text = "Clear",
+                style = MaterialTheme.typography.bodySmall,
+                maxLines = 1,
+                overflow = TextOverflow.Visible
+            )
+        }
+    }
+}
+
+@Composable
+private fun FilterDialog(
+    showDialog: Boolean,
+    currentFilter: ProductFilterOption,
+    onDismiss: () -> Unit,
+    onFilterSelected: (ProductFilterOption) -> Unit
+) {
+    if (showDialog) {
         AlertDialog(
-            onDismissRequest = { showFilterDialog = false },
+            onDismissRequest = onDismiss,
             title = { Text("Filter Products") },
             text = {
-                LazyColumn {
-                    item {
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .clickable {
-                                    viewModel.applyFilterOption(ProductFilterOption.ALL)
-                                    viewModel.fetchProducts(resetForFilterSort = true)
-                                    showFilterDialog = false
-                                }
-                                .padding(vertical = 8.dp)
-                        ) {
-                            RadioButton(
-                                selected = viewModel.currentFilterOption == ProductFilterOption.ALL,
-                                onClick = {
-                                    viewModel.applyFilterOption(ProductFilterOption.ALL)
-                                    viewModel.fetchProducts(resetForFilterSort = true)
-                                    showFilterDialog = false
-                                }
-                            )
-                            Text("All Products", modifier = Modifier.padding(start = 8.dp))
-                        }
-                    }
-
-                    item {
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .clickable {
-                                    viewModel.applyFilterOption(ProductFilterOption.IN_STOCK)
-                                    viewModel.fetchProducts(resetForFilterSort = true)
-                                    showFilterDialog = false
-                                }
-                                .padding(vertical = 8.dp)
-                        ) {
-                            RadioButton(
-                                selected = viewModel.currentFilterOption == ProductFilterOption.IN_STOCK,
-                                onClick = {
-                                    viewModel.applyFilterOption(ProductFilterOption.IN_STOCK)
-                                    viewModel.fetchProducts(resetForFilterSort = true)
-                                    showFilterDialog = false
-                                }
-                            )
-                            Text("In Stock", modifier = Modifier.padding(start = 8.dp))
-                        }
-                    }
-
-                    item {
-                        Text("Categories", style = MaterialTheme.typography.titleSmall)
-                    }
-
-                    val productCategory = ProductCategory.entries.toTypedArray()
-
-                    items(productCategory.size) { index ->
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .clickable {
-                                    viewModel.applyCategoryFilter(productCategory[index])
-                                    viewModel.fetchProducts(resetForFilterSort = true)
-                                    showFilterDialog = false
-                                }
-                                .padding(vertical = 8.dp)
-                        ) {
-                            RadioButton(
-                                selected = viewModel.currentFilterOption is ProductFilterOption.BY_CATEGORY &&
-                                        (viewModel.currentFilterOption as? ProductFilterOption.BY_CATEGORY)?.category == productCategory[index],
-                                onClick = {
-                                    viewModel.applyCategoryFilter(productCategory[index])
-                                    viewModel.fetchProducts(resetForFilterSort = true)
-                                    showFilterDialog = false
-                                }
-                            )
-                            Text(text = productCategory[index].toString(), modifier = Modifier.padding(start = 8.dp))
-                        }
-                    }
-                }
+                FilterDialogContent(
+                    currentFilter = currentFilter,
+                    onFilterSelected = onFilterSelected
+                )
             },
             confirmButton = {
-                TextButton(onClick = { showFilterDialog = false }) {
+                TextButton(onClick = onDismiss) {
                     Text("Close")
                 }
             }
         )
     }
+}
 
-    // Sort Dialog
-    if (showSortDialog) {
+@Composable
+private fun FilterDialogContent(
+    currentFilter: ProductFilterOption,
+    onFilterSelected: (ProductFilterOption) -> Unit
+) {
+    LazyColumn {
+        item { FilterOptionRow(
+            option = ProductFilterOption.ALL,
+            label = "All Products",
+            currentFilter = currentFilter,
+            onSelected = onFilterSelected
+        ) }
+
+        item { FilterOptionRow(
+            option = ProductFilterOption.IN_STOCK,
+            label = "In Stock",
+            currentFilter = currentFilter,
+            onSelected = onFilterSelected
+        ) }
+
+        item { Text("Categories", style = MaterialTheme.typography.titleSmall) }
+
+        val productCategory = ProductCategory.entries.toTypedArray()
+
+        items(productCategory.size) { index ->
+            FilterOptionRow(
+                option = ProductFilterOption.BY_CATEGORY(productCategory[index]),
+                label = productCategory[index].value,
+                currentFilter = currentFilter,
+                onSelected = onFilterSelected
+            )
+        }
+    }
+}
+
+@Composable
+private fun FilterOptionRow(
+    option: ProductFilterOption,
+    label: String,
+    currentFilter: ProductFilterOption,
+    onSelected: (ProductFilterOption) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = modifier
+            .fillMaxWidth()
+            .clickable { onSelected(option) }
+            .padding(vertical = 8.dp)
+    ) {
+        RadioButton(
+            selected = currentFilter == option ||
+                    (option is ProductFilterOption.BY_CATEGORY &&
+                            currentFilter is ProductFilterOption.BY_CATEGORY &&
+                            currentFilter.category == option.category),
+            onClick = { onSelected(option) }
+        )
+        Text(label, modifier = Modifier.padding(start = 8.dp))
+    }
+}
+
+@Composable
+private fun SortDialog(
+    showDialog: Boolean,
+    currentSort: ProductSortOption,
+    onDismiss: () -> Unit,
+    onSortSelected: (ProductSortOption) -> Unit
+) {
+    if (showDialog) {
         AlertDialog(
-            onDismissRequest = { showSortDialog = false },
+            onDismissRequest = onDismiss,
             title = { Text("Sort Products") },
             text = {
-                Column {
-                    ProductSortOption.entries.forEach { option ->
-                        if (option != ProductSortOption.DEFAULT) {
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically,
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .clickable {
-                                        viewModel.applySort(option)
-                                        viewModel.fetchProducts(resetForFilterSort = true)
-                                        showSortDialog = false
-                                    }
-                                    .padding(vertical = 8.dp)
-                            ) {
-                                RadioButton(
-                                    selected = viewModel.currentSortOption == option,
-                                    onClick = {
-                                        viewModel.applySort(option)
-                                        viewModel.fetchProducts(resetForFilterSort = true)
-                                        showSortDialog = false
-                                    }
-                                )
-                                Text(
-                                    text = when(option) {
-                                        ProductSortOption.PRICE_LOW_TO_HIGH -> "Price: Low to High"
-                                        ProductSortOption.PRICE_HIGH_TO_LOW -> "Price: High to Low"
-                                        ProductSortOption.NAME_A_TO_Z -> "Name: A to Z"
-                                        ProductSortOption.NAME_Z_TO_A -> "Name: Z to A"
-                                        else -> ""
-                                    },
-                                    modifier = Modifier.padding(start = 8.dp)
-                                )
-                            }
-                        }
-                    }
-                }
+                SortDialogContent(
+                    currentSort = currentSort,
+                    onSortSelected = onSortSelected
+                )
             },
             confirmButton = {
-                TextButton(onClick = { showSortDialog = false }) {
+                TextButton(onClick = onDismiss) {
                     Text("Close")
                 }
             }
+        )
+    }
+}
+
+@Composable
+private fun SortDialogContent(
+    currentSort: ProductSortOption,
+    onSortSelected: (ProductSortOption) -> Unit
+) {
+    Column {
+        ProductSortOption.entries
+            .filter { it != ProductSortOption.DEFAULT }
+            .forEach { option ->
+                SortOptionRow(
+                    option = option,
+                    currentSort = currentSort,
+                    onSelected = onSortSelected
+                )
+            }
+    }
+}
+
+@Composable
+private fun SortOptionRow(
+    option: ProductSortOption,
+    currentSort: ProductSortOption,
+    onSelected: (ProductSortOption) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = modifier
+            .fillMaxWidth()
+            .clickable { onSelected(option) }
+            .padding(vertical = 8.dp)
+    ) {
+        RadioButton(
+            selected = currentSort == option,
+            onClick = { onSelected(option) }
+        )
+        Text(
+            text = when(option) {
+                ProductSortOption.PRICE_LOW_TO_HIGH -> "Price: Low to High"
+                ProductSortOption.PRICE_HIGH_TO_LOW -> "Price: High to Low"
+                ProductSortOption.NAME_A_TO_Z -> "Name: A to Z"
+                ProductSortOption.NAME_Z_TO_A -> "Name: Z to A"
+                else -> ""
+            },
+            modifier = Modifier.padding(start = 8.dp)
         )
     }
 }
