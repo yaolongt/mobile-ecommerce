@@ -146,6 +146,8 @@ class ProductViewModel(
             return@launch
         }
 
+        clearFiltersAndSort()
+
         try {
             val results = productRepository.getSearchedProducts(query)
             _searchResults.value = results.getOrDefault(emptyList())
@@ -157,24 +159,14 @@ class ProductViewModel(
     fun clearSearch() {
         _searchResults.value = emptyList()
         _isSearchActive.value = false
-    }
-
-    private fun filterAndSortProducts(products: List<Product>): List<Product> {
-        return when (_currentFilterOption.value) {
-            ProductFilterOption.ALL -> products
-            is ProductFilterOption.BY_CATEGORY -> products.filter {
-                it.category == _currentFilterOption.value.getCategory()
-            }
-
-            ProductFilterOption.IN_STOCK -> TODO()
-        }
+        _products.value = emptyList()
+        refresh()
     }
 
     fun applySort(sortOption: ProductSortOption) {
         _currentSortOption.value = sortOption
         _isFilterOrSortApplied.value = true
-        // Fetch fresh data with new sort parameters
-        fetchProducts(resetForFilterSort = true)
+        fetchProducts(isInitial = true, resetForFilterSort = true)
     }
 
     fun applyFilterOption(filterOption: ProductFilterOption) {
@@ -193,13 +185,5 @@ class ProductViewModel(
         _currentSortOption.value = ProductSortOption.DEFAULT
         _currentFilterOption.value = ProductFilterOption.ALL
         _isFilterOrSortApplied.value = false
-        applyFilterAndSort()
-    }
-
-    private fun applyFilterAndSort() {
-        viewModelScope.launch {
-            _products.value = filterAndSortProducts(_products.value)
-            _searchResults.value = filterAndSortProducts(_searchResults.value)
-        }
     }
 }
