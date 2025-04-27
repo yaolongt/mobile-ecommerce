@@ -1,6 +1,9 @@
 package com.app.frontend.components
 
+import android.app.Activity
 import android.content.Intent
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -30,7 +33,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.app.frontend.activities.ProductDetailActivity
 import com.app.frontend.models.Product
-import com.app.frontend.viewmodels.ProductViewModel
+import com.app.frontend.viewmodels.ProductListViewModel
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.debounce
@@ -38,7 +41,7 @@ import kotlinx.coroutines.flow.debounce
 @OptIn(ExperimentalMaterial3Api::class, FlowPreview::class)
 @Composable
 fun ProductDisplayList(
-    viewModel: ProductViewModel = viewModel(),
+    viewModel: ProductListViewModel = viewModel(),
 ) {
     val products by viewModel.products.collectAsState()
     val searchResults by viewModel.searchResults.collectAsState()
@@ -47,10 +50,19 @@ fun ProductDisplayList(
     val pullToRefreshState = rememberPullToRefreshState()
     val ctx = LocalContext.current
 
+    val startForResult = rememberLauncherForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        if (result.resultCode == Activity.RESULT_OK) {
+            viewModel.refresh()
+        }
+    }
+
     fun onCardClicked(product: Product) {
-        val intent = Intent(ctx, ProductDetailActivity::class.java)
-        intent.putExtra("product", product)
-        ctx.startActivity(intent)
+        val intent = Intent(ctx, ProductDetailActivity::class.java).apply {
+            putExtra("productId", product.id)
+        }
+        startForResult.launch(intent)
     }
     val searchQueryFlow = remember { MutableStateFlow("") }
 
@@ -117,7 +129,7 @@ fun ProductDisplayList(
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 // Show loading state
-                if (viewModel.isLoading && itemsToShow.isEmpty()) {
+                if (viewModel.isLoading || itemsToShow.isEmpty()) {
                     items(10) {
                         ProductDisplayCardSkeleton(
                             modifier = Modifier

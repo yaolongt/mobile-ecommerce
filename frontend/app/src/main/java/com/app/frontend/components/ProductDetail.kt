@@ -34,7 +34,9 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SuggestionChip
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -57,6 +59,7 @@ import java.net.URLEncoder
 @Composable
 fun ProductDetail(product: Product) {
     var scrollState = rememberScrollState()
+
     Column(
         modifier = Modifier.verticalScroll(scrollState).fillMaxSize(),
         verticalArrangement = Arrangement.spacedBy(10.dp),

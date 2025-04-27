@@ -6,6 +6,7 @@ import com.app.frontend.api.RetrofitClient
 import com.app.frontend.models.GetProductResponse
 import com.app.frontend.models.GetSearchProductResponse
 import com.app.frontend.models.Product
+import com.app.frontend.models.ProductDTO
 import com.app.frontend.models.ProductFilterOption
 import com.app.frontend.models.ProductSortOption
 
@@ -35,11 +36,43 @@ class ProductRepository {
         Result.failure(e)
     }
 
+    suspend fun getProductById(id: Int): Result<Product> = try {
+        val response = apiService.getProductById(id)
+        Result.success(response.product)
+    } catch (e: Exception) {
+        Log.e("ProductRepository", e.toString())
+        Result.failure(e)
+    }
+
     suspend fun getSearchedProducts(query: String): Result<List<Product>> = try {
         val response = apiService.getSearchedProducts(query)
         Result.success(response.products)
     } catch (e: Exception) {
         Log.e("ProductRepository", e.toString())
         Result.failure(e)
+    }
+
+    suspend fun updateProduct(product: Product): Result<Boolean> {
+        return try {
+            val request = ProductDTO(
+                id = product.id,
+                name = product.name,
+                price = product.price,
+                inventory = product.inventory,
+                category = product.category.value.lowercase(),
+                description = product.description
+            )
+
+            val response = apiService.updateProduct(request)
+
+            if (response.error?.isEmpty() != false) {
+                Result.success(true)
+            } else {
+                val err = response.error.toString()
+                Result.failure(Exception("API error: $err"))
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
     }
 }

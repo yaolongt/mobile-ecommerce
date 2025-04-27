@@ -21,7 +21,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import com.app.frontend.viewmodels.ProductViewModel
+import com.app.frontend.viewmodels.ProductListViewModel
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -34,7 +34,7 @@ import com.app.frontend.models.getCategory
 
 @Composable
 fun ProductFilterSortBar(
-    viewModel: ProductViewModel,
+    viewModel: ProductListViewModel,
     modifier: Modifier = Modifier
 ) {
     var showFilterDialog by remember { mutableStateOf(false) }
