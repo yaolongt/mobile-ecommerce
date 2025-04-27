@@ -25,7 +25,6 @@ class ProductViewModel(
 
     private val _isRefreshing = mutableStateOf(false)
     val isRefreshing: Boolean get() = _isRefreshing.value
-
     private val _isPaginationLoading = mutableStateOf(false)
     val isPaginationLoading: Boolean get() = _isPaginationLoading.value
 
@@ -46,6 +45,10 @@ class ProductViewModel(
         _isRefreshing.value = true
         fetchProducts(true)
         _isRefreshing.value = false
+    }
+
+    fun clearError() {
+        _error.value = null
     }
 
     private fun toggleLoading(isInitial: Boolean, load: Boolean) {
@@ -96,5 +99,40 @@ class ProductViewModel(
         } finally {
             toggleLoading(isInitial, false)
         }
+    }
+    private val _searchResults = MutableStateFlow<List<Product>>(emptyList())
+    val searchResults: StateFlow<List<Product>> = _searchResults.asStateFlow()
+
+    private val _isSearching = mutableStateOf(false)
+    val isSearching: Boolean get() = _isSearching.value
+
+    private val _isSearchActive = mutableStateOf(false)
+    var isSearchActive: Boolean
+        get() = _isSearchActive.value
+        set(value) {
+            _isSearchActive.value = value
+            if (!value) {  // When setting to false, clear search results
+                _searchResults.value = emptyList()
+            }
+        }
+
+    fun searchProducts(query: String) = viewModelScope.launch {
+        _isSearchActive.value = query.isNotEmpty() // Automatically set active state
+        if (query.isEmpty()) {
+            _searchResults.value = emptyList()
+            return@launch
+        }
+
+        try {
+            val results = productRepository.getSearchedProducts(query)
+            _searchResults.value = results.getOrDefault(emptyList())
+        } catch (e: Exception) {
+            _error.value = "Search failed: ${e.message}"
+        }
+    }
+
+    fun clearSearch() {
+        _searchResults.value = emptyList()
+        _isSearchActive.value = false
     }
 }
