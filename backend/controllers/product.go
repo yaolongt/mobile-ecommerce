@@ -155,7 +155,7 @@ func (p *ProductController) UploadProductImages(c *gin.Context) {
 func (p *ProductController) SearchProducts(c *gin.Context) {
 	query := c.Query("query")
 	if query == "" {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Search query is required"})
+		c.JSON(http.StatusOK, gin.H{"products": make([]models.Product, 0)})
 		return
 	}
 

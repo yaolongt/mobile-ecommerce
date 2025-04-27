@@ -95,5 +95,10 @@ func (p *ProductService) SearchProducts(query string) ([]*models.Product, error)
 	if err != nil {
 		return nil, err
 	}
+
+	if len(products) == 0 {
+		return make([]*models.Product, 0), nil
+	}
+
 	return products, nil
 }
