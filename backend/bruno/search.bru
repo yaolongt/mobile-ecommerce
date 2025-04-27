@@ -5,7 +5,11 @@ meta {
 }
 
 get {
-  url: {{docker}}/api/v1/product/search
+  url: {{docker}}/api/v1/product/search?query=nintendo
   body: none
   auth: inherit
+}
+
+params:query {
+  query: nintendo
 }
