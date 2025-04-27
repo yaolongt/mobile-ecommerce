@@ -151,3 +151,19 @@ func (p *ProductController) UploadProductImages(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{"urls": resp})
 }
+
+func (p *ProductController) SearchProducts(c *gin.Context) {
+	query := c.Query("query")
+	if query == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Search query is required"})
+		return
+	}
+
+	products, err := p.service.SearchProducts(query)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": fmt.Sprintf("Failed to search products. %v", err)})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"products": products})
+}

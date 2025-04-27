@@ -89,3 +89,11 @@ func (p *ProductService) UploadProductImages(files []*multipart.FileHeader) ([]s
 
 	return urls, nil
 }
+
+func (p *ProductService) SearchProducts(query string) ([]*models.Product, error) {
+	products, err := p.db.Search(query)
+	if err != nil {
+		return nil, err
+	}
+	return products, nil
+}

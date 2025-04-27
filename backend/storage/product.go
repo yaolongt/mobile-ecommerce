@@ -13,6 +13,7 @@ type ProductInterface interface {
 	Update(product *models.Product) error
 	UpdateInventory(id int, inventory int) error
 	Delete(id int) error
+	Search(query string) ([]*models.Product, error)
 }
 
 type ProductDB struct {
@@ -99,4 +100,28 @@ func (p *ProductDB) Delete(id int) error {
 	}
 
 	return nil
+}
+
+func (p *ProductDB) Search(query string) ([]*models.Product, error) {
+	var products []*models.Product
+
+	err := p.read.Raw(`
+    SELECT * FROM products
+    WHERE
+        (
+            similarity(name, ?) >= 0.1 OR
+            similarity(description, ?) >= 0.1 OR
+            similarity(category_to_text(category), ?) >= 0.4
+        )
+        AND is_deleted = false
+    ORDER BY
+        GREATEST(
+            similarity(name, ?),
+            similarity(description, ?),
+            similarity(category_to_text(category), ?)
+        ) DESC`,
+		query, query, query, query, query, query,
+	).Scan(&products).Error
+
+	return products, err
 }

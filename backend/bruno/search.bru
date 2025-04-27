@@ -1,0 +1,11 @@
+meta {
+  name: search
+  type: http
+  seq: 7
+}
+
+get {
+  url: {{docker}}/api/v1/product/search
+  body: none
+  auth: inherit
+}
