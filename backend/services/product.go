@@ -45,13 +45,13 @@ func (p *ProductService) GetProductByID(id int) (*models.Product, error) {
 	return product, nil
 }
 
-func (p *ProductService) UpdateProduct(product *models.Product) error {
-	err := p.db.Update(product)
+func (p *ProductService) UpdateProduct(product *models.Product) (*models.Product, error) {
+	result, err := p.db.Update(product)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	return nil
+	return result, nil
 }
 
 func (p *ProductService) DeleteProduct(id int) error {

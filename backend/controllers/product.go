@@ -83,7 +83,8 @@ func (p *ProductController) UpdateProduct(c *gin.Context) {
 		return
 	}
 
-	if err := p.service.UpdateProduct(&product); err != nil {
+	updatedProduct, err := p.service.UpdateProduct(&product)
+	if err != nil {
 		if err == gorm.ErrRecordNotFound {
 			c.JSON(http.StatusNotFound, gin.H{"error": "Product not found"})
 			return
@@ -92,7 +93,7 @@ func (p *ProductController) UpdateProduct(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"message": "Product updated successfully"})
+	c.JSON(http.StatusOK, gin.H{"product": updatedProduct})
 }
 
 func (p *ProductController) DeleteProduct(c *gin.Context) {

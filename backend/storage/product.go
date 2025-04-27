@@ -10,7 +10,7 @@ import (
 type ProductInterface interface {
 	List(limit, offset int, sort, filter string, direction string) ([]*models.Product, int, int, error)
 	GetByID(id int) (*models.Product, error)
-	Update(product *models.Product) error
+	Update(product *models.Product) (*models.Product, error)
 	UpdateInventory(id int, inventory int) error
 	Delete(id int) error
 	Search(query string) ([]*models.Product, error)
@@ -93,17 +93,22 @@ func (p *ProductDB) GetByID(id int) (*models.Product, error) {
 	return &product, nil
 }
 
-func (p *ProductDB) Update(product *models.Product) error {
+func (p *ProductDB) Update(product *models.Product) (*models.Product, error) {
 	result := p.write.Model(&models.Product{}).Omit("created_at", "updated_at").Where("id = ?", product.ID).Updates(product)
 	if result.Error != nil {
-		return result.Error
+		return nil, result.Error
 	}
 
 	if result.RowsAffected == 0 {
-		return gorm.ErrRecordNotFound
+		return nil, gorm.ErrRecordNotFound
 	}
 
-	return nil
+	var updatedProduct *models.Product
+	if err := p.read.Where("id = ?", product.ID).First(&product).Error; err != nil {
+		return nil, err
+	}
+
+	return updatedProduct, nil
 }
 
 func (p *ProductDB) UpdateInventory(id int, inventory int) error {
