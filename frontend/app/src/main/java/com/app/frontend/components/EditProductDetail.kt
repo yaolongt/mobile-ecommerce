@@ -30,7 +30,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
@@ -52,6 +51,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontStyle
 import com.app.frontend.models.Product
@@ -132,215 +132,300 @@ fun EditProductDetail(
         onDismissRequest = onDismiss,
         title = { Text("Edit Product") },
         text = {
-            Column(
-                modifier = Modifier.verticalScroll(rememberScrollState())
-            ) {// Add this image upload section at the top
-                Column(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    // Image preview with selection
-                    LazyRow(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        itemsIndexed(selectedImageUris) { index, uri ->
-                            Box(
-                                modifier = Modifier
-                                    .size(100.dp)
-                                    .clip(MaterialTheme.shapes.small)
-                                    .border(
-                                        width = if (selectedIndices.contains(index)) 2.dp else 0.dp,
-                                        color = if (selectedIndices.contains(index)) MaterialTheme.colorScheme.primary else Color.Transparent,
-                                        shape = MaterialTheme.shapes.small
-                                    )
-                                    .clickable { toggleImageSelection(index) }
-                            ) {
-                                AsyncImage(
-                                    model = uri,
-                                    contentDescription = "Selected Image",
-                                    contentScale = ContentScale.Crop,
-                                    modifier = Modifier.fillMaxSize()
-                                )
-
-                                if (selectedIndices.contains(index)) {
-                                    Box(
-                                        modifier = Modifier
-                                            .align(Alignment.TopEnd)
-                                            .padding(4.dp)
-                                            .background(MaterialTheme.colorScheme.primary, CircleShape)
-                                            .size(20.dp)
-                                    ) {
-                                        Text(
-                                            text = "✓",
-                                            color = MaterialTheme.colorScheme.onPrimary,
-                                            modifier = Modifier.align(Alignment.Center)
-                                        )
-                                    }
-                                }
-                            }
-                        }
-                    }
-
-                    Spacer(modifier = Modifier.height(8.dp))
-
-                    Text(
-                        text = "⚠\uFE0F Uploading images will override the current images.",
-                        style = MaterialTheme.typography.bodySmall,
-                        fontStyle = FontStyle.Italic
-                    )
-
-                    // Action buttons
-                    Button(
-                        onClick = { selectImages() },
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        Text("Select More Images")
-                    }
-
-                    if (selectedImageUris.isNotEmpty()) {
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween
-                        ) {
-                            TextButton(
-                                onClick = {
-                                    if (selectedIndices.isNotEmpty()) {
-                                        removeSelectedImages()
-                                    } else {
-                                        selectedImageUris = emptyList()
-                                    }
-                                },
-                                modifier = Modifier.weight(1f)
-                            ) {
-                                Text(
-                                    text = if (selectedIndices.isNotEmpty()) "Remove Selected" else "Remove All",
-                                    color = MaterialTheme.colorScheme.error
-                                )
-                            }
-
-                            if (selectedIndices.isNotEmpty()) {
-                                TextButton(
-                                    onClick = { selectedIndices = emptySet() },
-                                    modifier = Modifier.weight(1f)
-                                ) {
-                                    Text("Clear Selection")
-                                }
-                            }
-                        }
-                    }
-                }
-
-
-                Spacer(modifier = Modifier.height(16.dp))
-
-                OutlinedTextField(
-                    value = editedProduct.name,
-                    onValueChange = { editedProduct = editedProduct.copy(name = it) },
-                    label = { Text("Product Name") },
-                    modifier = Modifier.fillMaxWidth()
-                )
-
-                Spacer(modifier = Modifier.height(16.dp))
-
-                OutlinedTextField(
-                    value = editedProduct.price.toString(),
-                    onValueChange = {
-                        editedProduct = editedProduct.copy(price = it.toFloatOrNull() ?: 0f)
-                    },
-                    label = { Text("Price") },
-                    keyboardOptions = KeyboardOptions.Default.copy(
-                        keyboardType = KeyboardType.Number
-                    ),
-                    modifier = Modifier.fillMaxWidth()
-                )
-
-                Spacer(modifier = Modifier.height(16.dp))
-
-                OutlinedTextField(
-                    value = editedProduct.inventory.toString(),
-                    onValueChange = {
-                        editedProduct = editedProduct.copy(inventory = it.toIntOrNull() ?: 0)
-                    },
-                    label = { Text("Inventory") },
-                    keyboardOptions = KeyboardOptions.Default.copy(
-                        keyboardType = KeyboardType.Number
-                    ),
-                    modifier = Modifier.fillMaxWidth()
-                )
-
-                Spacer(modifier = Modifier.height(16.dp))
-
-                // Category dropdown
-                var expanded by remember { mutableStateOf(false) }
-                ExposedDropdownMenuBox(
-                    expanded = expanded,
-                    onExpandedChange = { expanded = !expanded }
-                ) {
-                    OutlinedTextField(
-                        value = editedProduct.category.value,
-                        onValueChange = {},
-                        label = { Text("Category") },
-                        readOnly = true,
-                        trailingIcon = {
-                            ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
-                        },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .menuAnchor()
-                    )
-
-                    ExposedDropdownMenu(
-                        expanded = expanded,
-                        onDismissRequest = { expanded = false }
-                    ) {
-                        ProductCategory.entries.forEach { category ->
-                            DropdownMenuItem(
-                                text = { Text(category.value) },
-                                onClick = {
-                                    editedProduct = editedProduct.copy(category = category)
-                                    expanded = false
-                                }
-                            )
-                        }
-                    }
-                }
-
-                Spacer(modifier = Modifier.height(16.dp))
-
-                OutlinedTextField(
-                    value = editedProduct.description ?: "",
-                    onValueChange = {
-                        editedProduct = editedProduct.copy(description = it.ifEmpty { null })
-                    },
-                    label = { Text("Description") },
-                    modifier = Modifier.fillMaxWidth(),
-                    maxLines = 4
-                )
-            }
+            ProductEditForm(
+                product = editedProduct,
+                selectedImageUris = selectedImageUris,
+                selectedIndices = selectedIndices,
+                onProductUpdate = { editedProduct = it },
+                onImageSelected = { toggleImageSelection(it) },
+                onRemoveImages = { removeSelectedImages() },
+                onSelectMoreImages = { selectImages() }
+            )
         },
         confirmButton = {
-            Button(
-                onClick = { onSave(editedProduct, selectedImageUris.takeIf {it.isNotEmpty()}) },
-                enabled = !isUploading,
-            ) {
-                if (isUploading) {
-                    CircularProgressIndicator(
-                        modifier = Modifier.size(24.dp),
-                        color = MaterialTheme.colorScheme.onPrimary,
-                        strokeWidth = 2.dp
-                    )
-                } else {
-                    Text("Save")
-                }
-            }
+            SaveButton(
+                isLoading = isUploading,
+                onClick = { onSave(editedProduct, selectedImageUris.takeIf { it.isNotEmpty() }) }
+            )
         },
         dismissButton = {
-            TextButton(
-                onClick = onDismiss
-            ) {
-                Text("Cancel")
-            }
+            CancelButton(onClick = onDismiss)
         }
     )
+}
+
+@Composable
+private fun ProductEditForm(
+    product: Product,
+    selectedImageUris: List<Uri>,
+    selectedIndices: Set<Int>,
+    onProductUpdate: (Product) -> Unit,
+    onImageSelected: (Int) -> Unit,
+    onRemoveImages: () -> Unit,
+    onSelectMoreImages: () -> Unit
+) {
+    Column(
+        modifier = Modifier.verticalScroll(rememberScrollState())
+    ) {
+        ImageSelectionSection(
+            images = selectedImageUris,
+            selectedIndices = selectedIndices,
+            onImageSelected = onImageSelected,
+            onRemoveImages = onRemoveImages,
+            onSelectMoreImages = onSelectMoreImages
+        )
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        ProductFormFields(
+            product = product,
+            onProductUpdate = onProductUpdate
+        )
+    }
+}
+
+@Composable
+private fun ImageSelectionSection(
+    images: List<Uri>,
+    selectedIndices: Set<Int>,
+    onImageSelected: (Int) -> Unit,
+    onRemoveImages: () -> Unit,
+    onSelectMoreImages: () -> Unit
+) {
+    Column(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        // Image Gallery
+        LazyRow(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            itemsIndexed(images) { index, uri ->
+                SelectableImage(
+                    uri = uri,
+                    isSelected = selectedIndices.contains(index),
+                    onSelected = { onImageSelected(index) }
+                )
+            }
+        }
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        // Warning Text
+        Text(
+            text = "⚠️ Uploading images will override the current images.",
+            style = MaterialTheme.typography.bodySmall,
+            fontStyle = FontStyle.Italic
+        )
+
+        // Action Buttons
+        ImageActionButtons(
+            hasImages = images.isNotEmpty(),
+            hasSelection = selectedIndices.isNotEmpty(),
+            onSelectMore = onSelectMoreImages,
+            onRemove = onRemoveImages,
+            onClearSelection = { onImageSelected(-1) } // Special case to clear all
+        )
+    }
+}
+
+@Composable
+private fun SelectableImage(
+    uri: Uri,
+    isSelected: Boolean,
+    onSelected: () -> Unit
+) {
+
+    Box(
+        modifier = Modifier
+            .size(100.dp)
+            .clip(MaterialTheme.shapes.small)
+            .border(
+                width = if (isSelected) 2.dp else 0.dp,
+                color = if (isSelected) MaterialTheme.colorScheme.primary else Color.Transparent,
+                shape = MaterialTheme.shapes.small
+            )
+            .clickable(onClick = onSelected)
+    ) {
+        AsyncImage(
+            model = uri,
+            contentDescription = "Selected Image",
+            contentScale = ContentScale.Crop,
+            modifier = Modifier.fillMaxSize()
+        )
+
+        if (isSelected) {
+            SelectionBadge(modifier = Modifier.align(Alignment.TopEnd))
+        }
+    }
+}
+
+@Composable
+private fun SelectionBadge(modifier: Modifier) {
+    Box(
+        modifier = modifier
+            .padding(4.dp)
+            .background(MaterialTheme.colorScheme.primary, CircleShape)
+            .size(20.dp)
+    ) {
+        Text(
+            text = "✓",
+            color = MaterialTheme.colorScheme.onPrimary,
+            modifier = Modifier.align(Alignment.Center)
+        )
+    }
+}
+
+@Composable
+private fun ImageActionButtons(
+    hasImages: Boolean,
+    hasSelection: Boolean,
+    onSelectMore: () -> Unit,
+    onRemove: () -> Unit,
+    onClearSelection: () -> Unit
+) {
+    Button(
+        onClick = onSelectMore,
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Text("Select More Images")
+    }
+
+    if (hasImages) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            TextButton(
+                onClick = onRemove,
+                modifier = Modifier.weight(1f)
+            ) {
+                Text(
+                    text = if (hasSelection) "Remove Selected" else "Remove All",
+                    color = MaterialTheme.colorScheme.error
+                )
+            }
+
+            if (hasSelection) {
+                TextButton(
+                    onClick = onClearSelection,
+                    modifier = Modifier.weight(1f)
+                ) {
+                    Text("Clear Selection")
+                }
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun ProductFormFields(
+    product: Product,
+    onProductUpdate: (Product) -> Unit
+) {
+    // Name Field
+    OutlinedTextField(
+        value = product.name,
+        onValueChange = { onProductUpdate(product.copy(name = it)) },
+        label = { Text("Product Name") },
+        modifier = Modifier.fillMaxWidth()
+    )
+
+    Spacer(modifier = Modifier.height(16.dp))
+
+    // Price Field
+    OutlinedTextField(
+        value = product.price.toString(),
+        onValueChange = { onProductUpdate(product.copy(price = it.toFloatOrNull() ?: 0f)) },
+        label = { Text("Price") },
+        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+        modifier = Modifier.fillMaxWidth()
+    )
+
+    Spacer(modifier = Modifier.height(16.dp))
+
+    // Inventory Field
+    OutlinedTextField(
+        value = product.inventory.toString(),
+        onValueChange = { onProductUpdate(product.copy(inventory = it.toIntOrNull() ?: 0)) },
+        label = { Text("Inventory") },
+        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+        modifier = Modifier.fillMaxWidth()
+    )
+
+    Spacer(modifier = Modifier.height(16.dp))
+
+    // Category Dropdown
+    var expanded by remember { mutableStateOf(false) }
+    ExposedDropdownMenuBox(
+        expanded = expanded,
+        onExpandedChange = { expanded = !expanded }
+    ) {
+        OutlinedTextField(
+            value = product.category.value,
+            onValueChange = {},
+            label = { Text("Category") },
+            readOnly = true,
+            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
+            modifier = Modifier
+                .fillMaxWidth()
+                .menuAnchor()
+        )
+
+        ExposedDropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { expanded = false }
+        ) {
+            ProductCategory.entries.forEach { category ->
+                DropdownMenuItem(
+                    text = { Text(category.value) },
+                    onClick = {
+                        onProductUpdate(product.copy(category = category))
+                        expanded = false
+                    }
+                )
+            }
+        }
+    }
+
+    Spacer(modifier = Modifier.height(16.dp))
+
+    // Description Field
+    OutlinedTextField(
+        value = product.description ?: "",
+        onValueChange = { onProductUpdate(product.copy(description = it.ifEmpty { null })) },
+        label = { Text("Description") },
+        modifier = Modifier.fillMaxWidth(),
+        maxLines = 4
+    )
+}
+
+@Composable
+private fun SaveButton(
+    isLoading: Boolean,
+    onClick: () -> Unit
+) {
+    Button(
+        onClick = onClick,
+        enabled = !isLoading
+    ) {
+        if (isLoading) {
+            CircularProgressIndicator(
+                modifier = Modifier.size(24.dp),
+                color = MaterialTheme.colorScheme.onPrimary,
+                strokeWidth = 2.dp
+            )
+        } else {
+            Text("Save")
+        }
+    }
+}
+
+@Composable
+private fun CancelButton(onClick: () -> Unit) {
+    TextButton(onClick = onClick) {
+        Text("Cancel")
+    }
 }

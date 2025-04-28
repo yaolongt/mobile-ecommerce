@@ -70,7 +70,9 @@ class ProductDetailActivity : BaseActivity() {
                 onDismiss = { showEditDialog = false },
                 onSave = { updatedProduct, imageUris ->
                     viewModel.updateProduct(updatedProduct)
-                    viewModel.uploadImages(updatedProduct.id, imageUris ?: emptyList(), this)
+                    if (imageUris?.isNotEmpty() == true) {
+                        viewModel.uploadImages(updatedProduct.id, imageUris, this)
+                    }
                     showEditDialog = false
                     setResult(RESULT_OK)
                 }
