@@ -51,18 +51,6 @@ $$ LANGUAGE SQL IMMUTABLE;
 CREATE INDEX idx_products_category_trgm
 ON products USING gin (category_to_text(category) gin_trgm_ops);
 
--- Insert electronics products
-INSERT INTO products (name, price, inventory, category, description, images)
-VALUES
-    ('Samsung Galaxy S25 Ultra', 1299.99, 85, 'electronics', 'Flagship smartphone with 8K video recording, 200MP camera, and AI-enhanced features for photography and productivity. Comes with 1TB storage and 16GB RAM.', NULL),
-    ('iPhone 17 Pro', 1199.99, 120, 'electronics', 'Latest Apple smartphone featuring improved battery life, enhanced cameras, and faster processing. Available in titanium finish with spatial computing capabilities.', NULL),
-    ('Dell XPS 15 Laptop', 1799.99, 45, 'electronics', 'Powerful laptop with 13th Gen Intel i9 processor, 32GB RAM, 1TB SSD, and NVIDIA RTX 4070 graphics. Perfect for content creators and professionals.', NULL),
-    ('Sony WH-1000XM6 Headphones', 349.99, 200, 'electronics', 'Premium wireless noise-cancelling headphones with 40-hour battery life and hi-res audio support. Features adaptive sound control and speak-to-chat technology.', NULL),
-    ('Nintendo Switch Pro', 399.99, 85, 'electronics', 'Next-generation gaming console with 4K output capabilities, enhanced Joy-Cons, and expanded storage. Compatible with all Nintendo Switch games.', NULL),
-    ('Dyson Airwrap Complete', 599.99, 30, 'electronics', 'Versatile styling tool that curls, waves, smooths and dries with no extreme heat. Includes multiple attachments for different hair types and styles.', NULL),
-    ('Apple MacBook Air M3', 1099.99, 75, 'electronics', 'Ultra-thin laptop powered by Apple M3 chip with 16GB unified memory and 512GB SSD. Features all-day battery life and stunning Retina display.', NULL),
-    ('Bose Smart Soundbar 900', 799.99, 50, 'electronics', 'Premium soundbar with Dolby Atmos, voice assistants, and Bluetooth connectivity. Features proprietary audio technologies for immersive sound.', NULL);
-
 -- Insert clothing products
 INSERT INTO products (name, price, inventory, category, description, images)
 VALUES
@@ -122,3 +110,11 @@ VALUES
     ('Smart Digital Picture Frame', 159.99, 60, 'misc', '10-inch HD display that connects to WiFi for sharing photos remotely. Features motion sensor, touchscreen controls, and unlimited cloud storage.', NULL),
     ('Gourmet Coffee Sampler', 45.00, 100, 'misc', 'Collection of single-origin coffee beans from 6 countries. Freshly roasted and packaged in resealable bags with tasting notes and brewing recommendations.', NULL),
     ('Wireless Charging Pad', 39.99, 200, 'misc', 'Fast-charging Qi-compatible pad that works with most modern smartphones. Features LED indicator and foreign object detection for safety.', NULL);
+
+-- Insert electronics products
+INSERT INTO products (name, price, inventory, category, description, images)
+VALUES
+    ('Samsung Galaxy S25 Ultra', 1299.99, 85, 'electronics', 'Flagship smartphone with 8K video recording, 200MP camera, and AI-enhanced features for photography and productivity. Comes with 1TB storage and 16GB RAM.', '{"backend/samsungs25-1.jpg", "backend/samsungs25-2.jpg", "backend/samsungs25-3.jpg"}'),
+    ('iPhone 16 Pro', 1199.99, 120, 'electronics', 'Latest Apple smartphone featuring improved battery life, enhanced cameras, and faster processing. Available in titanium finish with spatial computing capabilities.', '{"backend/iphone16-1.jpg", "backend/iphone16-2.jpg", "backend/iphone16-3.jpg"}'),
+    ('Dell XPS 15 Laptop', 1799.99, 45, 'electronics', 'Powerful laptop with 13th Gen Intel i9 processor, 32GB RAM, 1TB SSD, and NVIDIA RTX 4070 graphics. Perfect for content creators and professionals.', '{"backend/dell-1.jpg", "backend/dell-2.jpg"}'),
+    ('Nintendo Switch Pro', 399.99, 85, 'electronics', 'Next-generation gaming console with 4K output capabilities, enhanced Joy-Cons, and expanded storage. Compatible with all Nintendo Switch games.', '{"backend/nintendo.jpg"}')

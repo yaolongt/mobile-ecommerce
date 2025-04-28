@@ -13,3 +13,4 @@ clean:
 	echo "Cleaning up"
 	docker compose down -v
 	rm ./main
+	rm -rf ./minio-data
