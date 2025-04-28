@@ -58,11 +58,8 @@ fun ProductDisplayCard(
                     .background(Color.Transparent)
             ) {
                 // Product image
-                Image(
-                    painter = if (!product.images.isNullOrEmpty()) painterResource(R.drawable.carlos_sainz)
-                    else painterResource(R.drawable.carlos_sainz),
-                    contentDescription = product.name,
-                    contentScale = ContentScale.Crop,
+                CustomImageDisplay(
+                    imageUrlPath = product.images?.firstOrNull() ?: "",
                     modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(10.dp))
                 )
             }

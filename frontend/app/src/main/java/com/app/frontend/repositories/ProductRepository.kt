@@ -9,6 +9,7 @@ import com.app.frontend.models.Product
 import com.app.frontend.models.ProductDTO
 import com.app.frontend.models.ProductFilterOption
 import com.app.frontend.models.ProductSortOption
+import okhttp3.MultipartBody
 
 class ProductRepository {
     private val apiService = RetrofitClient.instance
@@ -67,6 +68,20 @@ class ProductRepository {
 
             if (response.error?.isEmpty() != false) {
                 Result.success(true)
+            } else {
+                val err = response.error.toString()
+                Result.failure(Exception("API error: $err"))
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    suspend fun uploadImages(productId: Int, images: List<MultipartBody.Part>): Result<List<String>> {
+        return try {
+            val response = apiService.uploadProduct(productId, images)
+            if (response.error?.isEmpty() != false) {
+                Result.success(response.urls!!)
             } else {
                 val err = response.error.toString()
                 Result.failure(Exception("API error: $err"))

@@ -1,5 +1,8 @@
 package com.app.frontend.viewmodels
 
+import android.content.Context
+import android.net.Uri
+import android.util.Log
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -9,6 +12,11 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.MultipartBody
+import okhttp3.RequestBody.Companion.asRequestBody
+import java.io.File
+import java.io.FileOutputStream
 
 class ProductViewModel(
     private val productRepository: ProductRepository = ProductRepository()
@@ -56,6 +64,58 @@ class ProductViewModel(
                 _error.value = errorMessage
             }
         } catch (e: Exception) {
+            val errorMessage = e.message ?: "An unexpected error occurred"
+            _error.value = errorMessage
+        } finally {
+            _isLoading.value = false
+        }
+    }
+
+    fun uploadImages(productId: Int, imagesUri: List<Uri>, context: Context) = viewModelScope.launch {
+        _error.value = null
+        _isLoading.value = true
+
+        try {
+            // Convert URIs to MultipartBody.Part
+            val images = imagesUri.mapNotNull { uri ->
+                context.contentResolver.openInputStream(uri)?.use { inputStream ->
+                    // Create temporary file
+                    val file = File.createTempFile(
+                        "upload_${System.currentTimeMillis()}",
+                        ".jpg",
+                        context.cacheDir
+                    ).apply {
+                        deleteOnExit()
+                    }
+
+                    FileOutputStream(file).use { outputStream ->
+                        inputStream.copyTo(outputStream)
+                    }
+
+                    // Create multipart part
+                    MultipartBody.Part.createFormData(
+                        "images",
+                        file.name,
+                        file.asRequestBody("image/jpeg".toMediaTypeOrNull())
+                    )
+                }
+            }
+
+            if (images.isEmpty()) {
+                throw IllegalArgumentException("No valid images to upload")
+            }
+
+            val result = productRepository.uploadImages(productId, images)
+            if (result.isSuccess) {
+                val imagesUrls = result.getOrNull() ?: emptyList()
+              _product.value = _product.value?.copy(images = imagesUrls)
+            } else {
+                Log.d("ProductViewModel", "$productId, ${result}")
+                val errorMessage = result.exceptionOrNull()?.message ?: "Update failed"
+                _error.value = errorMessage
+            }
+        } catch (e: Exception) {
+            Log.d("ProductViewModel", "Uploading images for product $productId, ${e.message}")
             val errorMessage = e.message ?: "An unexpected error occurred"
             _error.value = errorMessage
         } finally {

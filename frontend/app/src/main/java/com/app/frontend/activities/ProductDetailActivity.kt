@@ -1,5 +1,6 @@
 package com.app.frontend.activities
 
+import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
@@ -31,9 +32,17 @@ class ProductDetailActivity : BaseActivity() {
         var productId = intent.getIntExtra("productId", -1)
         val product by viewModel.product.collectAsState()
         var showEditDialog by remember { mutableStateOf(false) }
+        val ctx = this
 
         LaunchedEffect(productId) {
             viewModel.fetchProduct(productId)
+        }
+
+        LaunchedEffect(viewModel.error) {
+            if (viewModel.error != null) {
+                Toast.makeText(ctx, viewModel.error, Toast.LENGTH_LONG).show()
+                viewModel.clearError()
+            }
         }
 
         Scaffold(
@@ -59,8 +68,9 @@ class ProductDetailActivity : BaseActivity() {
             EditProductDetail(
                 product = product!!,
                 onDismiss = { showEditDialog = false },
-                onSave = { updatedProduct ->
+                onSave = { updatedProduct, imageUris ->
                     viewModel.updateProduct(updatedProduct)
+                    viewModel.uploadImages(updatedProduct.id, imageUris ?: emptyList(), this)
                     showEditDialog = false
                     setResult(RESULT_OK)
                 }

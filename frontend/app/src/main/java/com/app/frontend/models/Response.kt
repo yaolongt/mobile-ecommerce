@@ -11,6 +11,7 @@ data class GetSearchProductResponse (
 )
 
 data class UpdateProductResponse (
+    val urls: List<String>?,
     val message: String?,
     val error: String?
 )
