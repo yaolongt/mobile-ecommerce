@@ -46,6 +46,20 @@ func (p *ProductService) GetProductByID(id int) (*models.Product, error) {
 }
 
 func (p *ProductService) UpdateProduct(product *models.Product) (*models.Product, error) {
+	oldProduct, err := p.db.GetByID(int(product.ID))
+	if err != nil {
+		return nil, err
+	}
+
+	// explicitly check if inventory is updated
+	// handles edge case where inventory == 0
+	if product.Inventory != oldProduct.Inventory {
+		err = p.db.UpdateInventory(int(product.ID), int(product.Inventory))
+		if err != nil {
+			return nil, err
+		}
+	}
+
 	result, err := p.db.Update(product)
 	if err != nil {
 		return nil, err
@@ -63,7 +77,7 @@ func (p *ProductService) DeleteProduct(id int) error {
 	return nil
 }
 
-func (p *ProductService) UploadProductImages(files []*multipart.FileHeader) ([]string, error) {
+func (p *ProductService) UploadProductImages(id int, files []*multipart.FileHeader) ([]string, error) {
 	var urls []string
 
 	for _, file := range files {
@@ -86,6 +100,14 @@ func (p *ProductService) UploadProductImages(files []*multipart.FileHeader) ([]s
 		}
 
 		urls = append(urls, url)
+	}
+
+	_, err := p.db.Update(&models.Product{
+		ID:     uint64(id),
+		Images: urls,
+	})
+	if err != nil {
+		return nil, err
 	}
 
 	return urls, nil

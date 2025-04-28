@@ -130,5 +130,5 @@ func (m *Minio) Put(filename string, file *bytes.Buffer) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	return fmt.Sprintf("http://localhost:9000/%s/%s", m.bucket, uniqueFilename), nil
+	return fmt.Sprintf("%s/%s", m.bucket, uniqueFilename), nil
 }

@@ -122,6 +122,18 @@ func (p *ProductController) DeleteProduct(c *gin.Context) {
 }
 
 func (p *ProductController) UploadProductImages(c *gin.Context) {
+	id := c.Param("id")
+	if id == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid ID input"})
+		return
+	}
+
+	productID, err := strconv.Atoi(id)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid product ID"})
+		return
+	}
+
 	if err := c.Request.ParseMultipartForm(10 << 20); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Unable to parse form"})
 		return
@@ -146,7 +158,7 @@ func (p *ProductController) UploadProductImages(c *gin.Context) {
 		}
 	}
 
-	resp, err := p.service.UploadProductImages(files)
+	resp, err := p.service.UploadProductImages(productID, files)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError,
 			gin.H{"error": fmt.Sprintf("Failed to upload images. %v", err)},
