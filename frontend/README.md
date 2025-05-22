@@ -1,6 +1,6 @@
-# 📱 Android Kotlin App for Thales Assignment
+# 📱 Android Kotlin App for Mobile Ecommerce App
 
-This is a simple Android application developed in Kotlin for the Thales assignment. The app displays a list of products and allows users to view product details.
+This is a simple Android application developed in Kotlin to display a simple ecommerce platform. The app displays a list of products and allows users to view product details.
 
 # ✨ Features
 
@@ -41,7 +41,7 @@ This is a simple Android application developed in Kotlin for the Thales assignme
 
 ```bash
 # Clone the repository
-git clone https://github.com/yaolongt/thales-assignment.git
+git clone https://github.com/yaolongt/mobile-ecommerce.git
 
 # Change directory
 cd frontend

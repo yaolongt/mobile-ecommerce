@@ -12,7 +12,7 @@ This is a simple backend service that provides a RESTful API for managing produc
 
 ```bash
 # Clone the repository
-git clone https://github.com/yaolongt/thales-assignment.git
+git clone https://github.com/yaolongt/mobile-ecommerce.git
 
 # Change directory
 cd backend

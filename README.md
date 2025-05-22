@@ -1,6 +1,6 @@
-# 🏗️ Thales Assignment App
+# 🏗️ Mobile Ecommerce App
 
-This repository contains both the frontend and backend components for the Thales assignment project.
+This repository contains both the frontend and backend components for the Mobile Ecommerce App.
 
 - Frontend: Android Kotlin application built with Jetpack Compose.
 

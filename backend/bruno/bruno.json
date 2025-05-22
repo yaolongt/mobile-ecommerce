@@ -1,9 +1,7 @@
 {
   "version": "1",
-  "name": "thales-bruno",
+  "name": "bruno",
   "type": "collection",
-  "ignore": [
-    "node_modules",
-    ".git"
-  ]
+  "ignore": ["node_modules", ".git"]
 }
+
